@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>인터벌 트레이닝 (자연스러운 애니메이션)</title>
+    <title>인터벌 트레이닝 (GIF 버전)</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -30,7 +30,7 @@
         .timer-display .label { font-size: 1em; color: #888; }
         .timer-display .time { font-size: 2.5em; font-weight: bold; }
 
-        /* ✨ 개선된 자연스러운 졸라맨 애니메이션 */
+        /* ✨ GIF 애니메이션을 위한 간단한 스타일 */
         .animation-container {
             height: 150px;
             display: flex;
@@ -39,284 +39,11 @@
             margin: 20px 0;
         }
 
-        .stickman {
-            width: 100px;
-            height: 130px;
-            position: relative;
-        }
-
-        /* 머리 */
-        .head {
-            width: 20px;
-            height: 20px;
-            border: 3px solid #333;
-            border-radius: 50%;
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            background: transparent;
-        }
-
-        /* 몸통 */
-        .body {
-            width: 3px;
-            height: 50px;
-            background: #333;
-            position: absolute;
-            top: 23px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        /* ✨ 개선된 팔 구조 - 상완과 하완으로 분리 */
-        .arms {
-            position: absolute;
-            top: 35px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .arm-group {
-            position: absolute;
-        }
-
-        .arm-group.left {
-            left: -3px;
-        }
-
-        .arm-group.right {
-            right: -3px;
-        }
-
-        .upper-arm {
-            width: 25px;
-            height: 3px;
-            background: #333;
-            position: absolute;
-            transform-origin: left center;
-        }
-
-        .lower-arm {
-            width: 20px;
-            height: 3px;
-            background: #333;
-            position: absolute;
-            left: 25px;
-            transform-origin: left center;
-        }
-
-        /* ✨ 개선된 다리 구조 - 허벅지와 종아리로 분리 */
-        .legs {
-            position: absolute;
-            top: 73px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .leg-group {
-            position: absolute;
-        }
-
-        .leg-group.left {
-            left: -8px;
-        }
-
-        .leg-group.right {
-            right: -8px;
-        }
-
-        .thigh {
-            width: 3px;
-            height: 25px;
-            background: #333;
-            position: absolute;
-            transform-origin: top center;
-        }
-
-        .calf {
-            width: 3px;
-            height: 25px;
-            background: #333;
-            position: absolute;
-            top: 25px;
-            transform-origin: top center;
-        }
-
-        /* ✨ 자연스러운 걷기 애니메이션 */
-        .stickman.walking .arm-group.left .upper-arm {
-            animation: walkLeftUpperArm 1.2s ease-in-out infinite;
-        }
-
-        .stickman.walking .arm-group.left .lower-arm {
-            animation: walkLeftLowerArm 1.2s ease-in-out infinite;
-        }
-
-        .stickman.walking .arm-group.right .upper-arm {
-            animation: walkRightUpperArm 1.2s ease-in-out infinite;
-        }
-
-        .stickman.walking .arm-group.right .lower-arm {
-            animation: walkRightLowerArm 1.2s ease-in-out infinite;
-        }
-
-        .stickman.walking .leg-group.left .thigh {
-            animation: walkLeftThigh 1.2s ease-in-out infinite;
-        }
-
-        .stickman.walking .leg-group.left .calf {
-            animation: walkLeftCalf 1.2s ease-in-out infinite;
-        }
-
-        .stickman.walking .leg-group.right .thigh {
-            animation: walkRightThigh 1.2s ease-in-out infinite;
-        }
-
-        .stickman.walking .leg-group.right .calf {
-            animation: walkRightCalf 1.2s ease-in-out infinite;
-        }
-
-        /* 걷기 - 팔 애니메이션 */
-        @keyframes walkLeftUpperArm {
-            0%, 100% { transform: rotate(-25deg); }
-            50% { transform: rotate(25deg); }
-        }
-
-        @keyframes walkLeftLowerArm {
-            0%, 100% { transform: rotate(-15deg); }
-            50% { transform: rotate(15deg); }
-        }
-
-        @keyframes walkRightUpperArm {
-            0%, 100% { transform: rotate(25deg); }
-            50% { transform: rotate(-25deg); }
-        }
-
-        @keyframes walkRightLowerArm {
-            0%, 100% { transform: rotate(15deg); }
-            50% { transform: rotate(-15deg); }
-        }
-
-        /* 걷기 - 다리 애니메이션 (무릎 굽힘 포함) */
-        @keyframes walkLeftThigh {
-            0%, 100% { transform: rotate(15deg); }
-            25% { transform: rotate(-10deg); }
-            50% { transform: rotate(-15deg); }
-            75% { transform: rotate(10deg); }
-        }
-
-        @keyframes walkLeftCalf {
-            0%, 100% { transform: rotate(-5deg); }
-            25% { transform: rotate(25deg); }
-            50% { transform: rotate(10deg); }
-            75% { transform: rotate(-15deg); }
-        }
-
-        @keyframes walkRightThigh {
-            0%, 100% { transform: rotate(-15deg); }
-            25% { transform: rotate(10deg); }
-            50% { transform: rotate(15deg); }
-            75% { transform: rotate(-10deg); }
-        }
-
-        @keyframes walkRightCalf {
-            0%, 100% { transform: rotate(10deg); }
-            25% { transform: rotate(-15deg); }
-            50% { transform: rotate(-5deg); }
-            75% { transform: rotate(25deg); }
-        }
-
-        /* ✨ 자연스러운 뛰기 애니메이션 */
-        .stickman.running {
-            animation: runBounce 0.8s ease-in-out infinite;
-        }
-
-        .stickman.running .arm-group.left .upper-arm {
-            animation: runLeftUpperArm 0.8s ease-in-out infinite;
-        }
-
-        .stickman.running .arm-group.left .lower-arm {
-            animation: runLeftLowerArm 0.8s ease-in-out infinite;
-        }
-
-        .stickman.running .arm-group.right .upper-arm {
-            animation: runRightUpperArm 0.8s ease-in-out infinite;
-        }
-
-        .stickman.running .arm-group.right .lower-arm {
-            animation: runRightLowerArm 0.8s ease-in-out infinite;
-        }
-
-        .stickman.running .leg-group.left .thigh {
-            animation: runLeftThigh 0.8s ease-in-out infinite;
-        }
-
-        .stickman.running .leg-group.left .calf {
-            animation: runLeftCalf 0.8s ease-in-out infinite;
-        }
-
-        .stickman.running .leg-group.right .thigh {
-            animation: runRightThigh 0.8s ease-in-out infinite;
-        }
-
-        .stickman.running .leg-group.right .calf {
-            animation: runRightCalf 0.8s ease-in-out infinite;
-        }
-
-        /* 뛰기 - 몸 전체 바운스 */
-        @keyframes runBounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
-
-        /* 뛰기 - 팔 애니메이션 (더 큰 움직임) */
-        @keyframes runLeftUpperArm {
-            0%, 100% { transform: rotate(-40deg); }
-            50% { transform: rotate(40deg); }
-        }
-
-        @keyframes runLeftLowerArm {
-            0%, 100% { transform: rotate(-25deg); }
-            50% { transform: rotate(25deg); }
-        }
-
-        @keyframes runRightUpperArm {
-            0%, 100% { transform: rotate(40deg); }
-            50% { transform: rotate(-40deg); }
-        }
-
-        @keyframes runRightLowerArm {
-            0%, 100% { transform: rotate(25deg); }
-            50% { transform: rotate(-25deg); }
-        }
-
-        /* 뛰기 - 다리 애니메이션 (더 큰 무릎 굽힘) */
-        @keyframes runLeftThigh {
-            0%, 100% { transform: rotate(25deg); }
-            25% { transform: rotate(-20deg); }
-            50% { transform: rotate(-30deg); }
-            75% { transform: rotate(20deg); }
-        }
-
-        @keyframes runLeftCalf {
-            0%, 100% { transform: rotate(-10deg); }
-            25% { transform: rotate(45deg); }
-            50% { transform: rotate(20deg); }
-            75% { transform: rotate(-25deg); }
-        }
-
-        @keyframes runRightThigh {
-            0%, 100% { transform: rotate(-30deg); }
-            25% { transform: rotate(20deg); }
-            50% { transform: rotate(25deg); }
-            75% { transform: rotate(-20deg); }
-        }
-
-        @keyframes runRightCalf {
-            0%, 100% { transform: rotate(20deg); }
-            25% { transform: rotate(-25deg); }
-            50% { transform: rotate(-10deg); }
-            75% { transform: rotate(45deg); }
+        #animationImg {
+            max-height: 100%;
+            max-width: 100%;
+            height: auto;
+            width: auto;
         }
 
         .phase-display .phase-title { font-size: 3em; font-weight: 800; }
@@ -327,7 +54,9 @@
             margin-top: 20px; transition: background-color 0.2s;
         }
         .btn-start { background-color: #007aff; }
+        .btn-start:hover { background-color: #0056b3; }
         .btn-stop { background-color: #ff3b30; }
+        .btn-stop:hover { background-color: #c00; }
         .modal {
             display: none; position: fixed; z-index: 10; left: 0; top: 0;
             width: 100%; height: 100%; overflow: auto;
@@ -338,7 +67,8 @@
             border-radius: 15px; width: 80%; max-width: 500px;
         }
         .modal-header { display: flex; justify-content: space-between; align-items: center; }
-        .close-btn { font-size: 28px; font-weight: bold; cursor: pointer; }
+        .modal-header h2 { margin: 0; }
+        .close-btn { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
         .setting { margin: 20px 0; }
         .setting label { display: block; margin-bottom: 10px; font-weight: 500; }
         .setting input[type="range"] { width: 100%; }
@@ -360,32 +90,9 @@
                 <div class="label">전체 남은 시간</div>
                 <div id="totalTime" class="time">30:00</div>
             </div>
-            <!-- ✨ 개선된 자연스러운 졸라맨 애니메이션 -->
+            <!-- ✨ GIF 파일을 표시할 img 태그 -->
             <div class="animation-container">
-                <div id="stickman" class="stickman">
-                    <div class="head"></div>
-                    <div class="body"></div>
-                    <div class="arms">
-                        <div class="arm-group left">
-                            <div class="upper-arm"></div>
-                            <div class="lower-arm"></div>
-                        </div>
-                        <div class="arm-group right">
-                            <div class="upper-arm"></div>
-                            <div class="lower-arm"></div>
-                        </div>
-                    </div>
-                    <div class="legs">
-                        <div class="leg-group left">
-                            <div class="thigh"></div>
-                            <div class="calf"></div>
-                        </div>
-                        <div class="leg-group right">
-                            <div class="thigh"></div>
-                            <div class="calf"></div>
-                        </div>
-                    </div>
-                </div>
+                <img id="animationImg" alt="운동 애니메이션" src="">
             </div>
             <div class="phase-display">
                 <div id="phaseTitle" class="phase-title">워밍업</div>
@@ -401,26 +108,26 @@
                 <span class="close-btn">&times;</span>
             </div>
             <div class="setting">
-                <label>전체 시간: <span id="totalDurationLabel">30</span>분</label>
+                <label>전체 트레이닝 시간: <span id="totalDurationLabel">30</span>분</label>
                 <input type="range" id="totalDuration" min="1" max="60" value="30">
             </div>
             <div class="setting">
-                <label>워밍업: <span id="warmupDurationLabel">10</span>분</label>
+                <label>최초 워밍업 시간: <span id="warmupDurationLabel">10</span>분</label>
                 <input type="range" id="warmupDuration" min="1" max="20" value="10">
             </div>
             <div class="setting">
-                <label>걷기: <span id="walkIntervalLabel">2</span>분</label>
+                <label>걷는 시간: <span id="walkIntervalLabel">2</span>분</label>
                 <input type="range" id="walkInterval" min="1" max="10" value="2">
             </div>
             <div class="setting">
-                <label>뛰기: <span id="runIntervalLabel">2</span>분</label>
+                <label>뛰는 시간: <span id="runIntervalLabel">2</span>분</label>
                 <input type="range" id="runInterval" min="1" max="10" value="2">
             </div>
         </div>
     </div>
 
     <script>
-        // DOM 요소들 (JavaScript는 이전과 동일)
+        // DOM 요소들
         const startView = document.getElementById('startView');
         const workoutView = document.getElementById('workoutView');
         const headerTitle = document.getElementById('headerTitle');
@@ -430,7 +137,7 @@
         const settingsModal = document.getElementById('settingsModal');
         const closeModalBtn = document.querySelector('.close-btn');
         const totalTimeEl = document.getElementById('totalTime');
-        const stickmanEl = document.getElementById('stickman');
+        const animationImg = document.getElementById('animationImg'); // ✨ img 태그 참조
         const phaseTitleEl = document.getElementById('phaseTitle');
         const phaseTimeEl = document.getElementById('phaseTime');
         
@@ -457,6 +164,13 @@
             FINISHED: 'FINISHED'
         };
 
+        // ✨ 로컬 GIF 파일 경로 설정
+        const ANIMATIONS = {
+            walking: 'walkman.gif',
+            running: 'runman.gif'
+        };
+
+        // 함수들
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
             const secs = seconds % 60;
@@ -469,21 +183,44 @@
             headerTitle.textContent = viewToShow === workoutView ? '트레이닝 중' : '준비';
         }
 
+        // ✨ UI 업데이트 함수 - GIF 파일로 애니메이션 변경
         function updateUI() {
             totalTimeEl.textContent = formatTime(totalTimeRemaining);
             phaseTimeEl.textContent = formatTime(phaseTimeRemaining);
 
             const phaseInfo = {
-                [phases.WARMING_UP]: { title: '워밍업', color: '#2ecc71', animation: 'walking' },
-                [phases.RUNNING]: { title: '뛰는 시간', color: '#e67e22', animation: 'running' },
-                [phases.WALKING]: { title: '걷는 시간', color: '#3498db', animation: 'walking' },
-                [phases.FINISHED]: { title: '완료!', color: '#95a5a6', animation: '' }
+                [phases.WARMING_UP]: { 
+                    title: '워밍업', 
+                    color: '#2ecc71', 
+                    animation: ANIMATIONS.walking 
+                },
+                [phases.RUNNING]: { 
+                    title: '뛰는 시간', 
+                    color: '#e67e22', 
+                    animation: ANIMATIONS.running 
+                },
+                [phases.WALKING]: { 
+                    title: '걷는 시간', 
+                    color: '#3498db', 
+                    animation: ANIMATIONS.walking 
+                },
+                [phases.FINISHED]: { 
+                    title: '완료!', 
+                    color: '#95a5a6', 
+                    animation: '' 
+                }
             };
             
             const info = phaseInfo[currentPhase];
             phaseTitleEl.textContent = info.title;
             phaseTitleEl.style.color = info.color;
-            stickmanEl.className = `stickman ${info.animation}`;
+            
+            // ✨ GIF 파일 변경 (현재와 다른 경우에만)
+            if (info.animation && animationImg.src !== info.animation) {
+                animationImg.src = info.animation;
+            } else if (!info.animation) {
+                animationImg.src = ''; // 완료 시 이미지 제거
+            }
         }
 
         function nextPhase() {
@@ -517,7 +254,7 @@
             phaseTimeRemaining = settings.warmup.value * 60;
             currentPhase = phases.WARMING_UP;
             switchView(workoutView);
-            updateUI();
+            updateUI(); // ✨ 시작과 동시에 워밍업 애니메이션 표시
             timerInterval = setInterval(tick, 1000);
         }
 
@@ -528,9 +265,14 @@
             if (endMessage === '완료!') {
                 currentPhase = phases.FINISHED;
                 updateUI();
-                setTimeout(() => switchView(startView), 3000);
+                // 완료 메시지 표시 후 3초 뒤 시작 화면으로 복귀
+                setTimeout(() => {
+                    switchView(startView);
+                    animationImg.src = ''; // 애니메이션 이미지 초기화
+                }, 3000);
             } else {
                 switchView(startView);
+                animationImg.src = ''; // 애니메이션 이미지 초기화
             }
         }
 
@@ -544,6 +286,8 @@
                 settingsModal.style.display = 'none';
             }
         });
+        
+        // 설정 슬라이더 값 변경 시 레이블 업데이트
         Object.keys(settings).forEach(key => {
             settings[key].addEventListener('input', (e) => {
                 labels[key].textContent = e.target.value;
