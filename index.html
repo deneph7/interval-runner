@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>인터벌 트레이닝 (CSS 애니메이션)</title>
+    <title>인터벌 트레이닝 (자연스러운 애니메이션)</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -30,7 +30,7 @@
         .timer-display .label { font-size: 1em; color: #888; }
         .timer-display .time { font-size: 2.5em; font-weight: bold; }
 
-        /* ✨ CSS 졸라맨 애니메이션 스타일 */
+        /* ✨ 개선된 자연스러운 졸라맨 애니메이션 */
         .animation-container {
             height: 150px;
             display: flex;
@@ -40,8 +40,8 @@
         }
 
         .stickman {
-            width: 80px;
-            height: 120px;
+            width: 100px;
+            height: 130px;
             position: relative;
         }
 
@@ -69,7 +69,7 @@
             transform: translateX(-50%);
         }
 
-        /* 팔 */
+        /* ✨ 개선된 팔 구조 - 상완과 하완으로 분리 */
         .arms {
             position: absolute;
             top: 35px;
@@ -77,7 +77,19 @@
             transform: translateX(-50%);
         }
 
-        .arm {
+        .arm-group {
+            position: absolute;
+        }
+
+        .arm-group.left {
+            left: -3px;
+        }
+
+        .arm-group.right {
+            right: -3px;
+        }
+
+        .upper-arm {
             width: 25px;
             height: 3px;
             background: #333;
@@ -85,17 +97,16 @@
             transform-origin: left center;
         }
 
-        .arm.left {
-            transform: rotate(-20deg);
-            left: -25px;
+        .lower-arm {
+            width: 20px;
+            height: 3px;
+            background: #333;
+            position: absolute;
+            left: 25px;
+            transform-origin: left center;
         }
 
-        .arm.right {
-            transform: rotate(20deg);
-            right: -25px;
-        }
-
-        /* 다리 */
+        /* ✨ 개선된 다리 구조 - 허벅지와 종아리로 분리 */
         .legs {
             position: absolute;
             top: 73px;
@@ -103,103 +114,209 @@
             transform: translateX(-50%);
         }
 
-        .leg {
+        .leg-group {
+            position: absolute;
+        }
+
+        .leg-group.left {
+            left: -8px;
+        }
+
+        .leg-group.right {
+            right: -8px;
+        }
+
+        .thigh {
             width: 3px;
-            height: 40px;
+            height: 25px;
             background: #333;
             position: absolute;
             transform-origin: top center;
         }
 
-        .leg.left {
-            left: -10px;
+        .calf {
+            width: 3px;
+            height: 25px;
+            background: #333;
+            position: absolute;
+            top: 25px;
+            transform-origin: top center;
         }
 
-        .leg.right {
-            right: -10px;
+        /* ✨ 자연스러운 걷기 애니메이션 */
+        .stickman.walking .arm-group.left .upper-arm {
+            animation: walkLeftUpperArm 1.2s ease-in-out infinite;
         }
 
-        /* 걷기 애니메이션 */
-        .stickman.walking .leg.left {
-            animation: walkLeftLeg 1s ease-in-out infinite;
+        .stickman.walking .arm-group.left .lower-arm {
+            animation: walkLeftLowerArm 1.2s ease-in-out infinite;
         }
 
-        .stickman.walking .leg.right {
-            animation: walkRightLeg 1s ease-in-out infinite;
+        .stickman.walking .arm-group.right .upper-arm {
+            animation: walkRightUpperArm 1.2s ease-in-out infinite;
         }
 
-        .stickman.walking .arm.left {
-            animation: walkLeftArm 1s ease-in-out infinite;
+        .stickman.walking .arm-group.right .lower-arm {
+            animation: walkRightLowerArm 1.2s ease-in-out infinite;
         }
 
-        .stickman.walking .arm.right {
-            animation: walkRightArm 1s ease-in-out infinite;
+        .stickman.walking .leg-group.left .thigh {
+            animation: walkLeftThigh 1.2s ease-in-out infinite;
         }
 
-        @keyframes walkLeftLeg {
-            0%, 100% { transform: rotate(20deg); }
-            50% { transform: rotate(-20deg); }
+        .stickman.walking .leg-group.left .calf {
+            animation: walkLeftCalf 1.2s ease-in-out infinite;
         }
 
-        @keyframes walkRightLeg {
-            0%, 100% { transform: rotate(-20deg); }
-            50% { transform: rotate(20deg); }
+        .stickman.walking .leg-group.right .thigh {
+            animation: walkRightThigh 1.2s ease-in-out infinite;
         }
 
-        @keyframes walkLeftArm {
-            0%, 100% { transform: rotate(-30deg); }
-            50% { transform: rotate(30deg); }
+        .stickman.walking .leg-group.right .calf {
+            animation: walkRightCalf 1.2s ease-in-out infinite;
         }
 
-        @keyframes walkRightArm {
-            0%, 100% { transform: rotate(30deg); }
-            50% { transform: rotate(-30deg); }
+        /* 걷기 - 팔 애니메이션 */
+        @keyframes walkLeftUpperArm {
+            0%, 100% { transform: rotate(-25deg); }
+            50% { transform: rotate(25deg); }
         }
 
-        /* 뛰기 애니메이션 */
+        @keyframes walkLeftLowerArm {
+            0%, 100% { transform: rotate(-15deg); }
+            50% { transform: rotate(15deg); }
+        }
+
+        @keyframes walkRightUpperArm {
+            0%, 100% { transform: rotate(25deg); }
+            50% { transform: rotate(-25deg); }
+        }
+
+        @keyframes walkRightLowerArm {
+            0%, 100% { transform: rotate(15deg); }
+            50% { transform: rotate(-15deg); }
+        }
+
+        /* 걷기 - 다리 애니메이션 (무릎 굽힘 포함) */
+        @keyframes walkLeftThigh {
+            0%, 100% { transform: rotate(15deg); }
+            25% { transform: rotate(-10deg); }
+            50% { transform: rotate(-15deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        @keyframes walkLeftCalf {
+            0%, 100% { transform: rotate(-5deg); }
+            25% { transform: rotate(25deg); }
+            50% { transform: rotate(10deg); }
+            75% { transform: rotate(-15deg); }
+        }
+
+        @keyframes walkRightThigh {
+            0%, 100% { transform: rotate(-15deg); }
+            25% { transform: rotate(10deg); }
+            50% { transform: rotate(15deg); }
+            75% { transform: rotate(-10deg); }
+        }
+
+        @keyframes walkRightCalf {
+            0%, 100% { transform: rotate(10deg); }
+            25% { transform: rotate(-15deg); }
+            50% { transform: rotate(-5deg); }
+            75% { transform: rotate(25deg); }
+        }
+
+        /* ✨ 자연스러운 뛰기 애니메이션 */
         .stickman.running {
-            animation: bounce 0.6s ease-in-out infinite;
+            animation: runBounce 0.8s ease-in-out infinite;
         }
 
-        .stickman.running .leg.left {
-            animation: runLeftLeg 0.6s ease-in-out infinite;
+        .stickman.running .arm-group.left .upper-arm {
+            animation: runLeftUpperArm 0.8s ease-in-out infinite;
         }
 
-        .stickman.running .leg.right {
-            animation: runRightLeg 0.6s ease-in-out infinite;
+        .stickman.running .arm-group.left .lower-arm {
+            animation: runLeftLowerArm 0.8s ease-in-out infinite;
         }
 
-        .stickman.running .arm.left {
-            animation: runLeftArm 0.6s ease-in-out infinite;
+        .stickman.running .arm-group.right .upper-arm {
+            animation: runRightUpperArm 0.8s ease-in-out infinite;
         }
 
-        .stickman.running .arm.right {
-            animation: runRightArm 0.6s ease-in-out infinite;
+        .stickman.running .arm-group.right .lower-arm {
+            animation: runRightLowerArm 0.8s ease-in-out infinite;
         }
 
-        @keyframes bounce {
+        .stickman.running .leg-group.left .thigh {
+            animation: runLeftThigh 0.8s ease-in-out infinite;
+        }
+
+        .stickman.running .leg-group.left .calf {
+            animation: runLeftCalf 0.8s ease-in-out infinite;
+        }
+
+        .stickman.running .leg-group.right .thigh {
+            animation: runRightThigh 0.8s ease-in-out infinite;
+        }
+
+        .stickman.running .leg-group.right .calf {
+            animation: runRightCalf 0.8s ease-in-out infinite;
+        }
+
+        /* 뛰기 - 몸 전체 바운스 */
+        @keyframes runBounce {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-15px); }
         }
 
-        @keyframes runLeftLeg {
-            0%, 100% { transform: rotate(40deg); }
-            50% { transform: rotate(-40deg); }
-        }
-
-        @keyframes runRightLeg {
+        /* 뛰기 - 팔 애니메이션 (더 큰 움직임) */
+        @keyframes runLeftUpperArm {
             0%, 100% { transform: rotate(-40deg); }
             50% { transform: rotate(40deg); }
         }
 
-        @keyframes runLeftArm {
-            0%, 100% { transform: rotate(-45deg); }
-            50% { transform: rotate(45deg); }
+        @keyframes runLeftLowerArm {
+            0%, 100% { transform: rotate(-25deg); }
+            50% { transform: rotate(25deg); }
         }
 
-        @keyframes runRightArm {
-            0%, 100% { transform: rotate(45deg); }
-            50% { transform: rotate(-45deg); }
+        @keyframes runRightUpperArm {
+            0%, 100% { transform: rotate(40deg); }
+            50% { transform: rotate(-40deg); }
+        }
+
+        @keyframes runRightLowerArm {
+            0%, 100% { transform: rotate(25deg); }
+            50% { transform: rotate(-25deg); }
+        }
+
+        /* 뛰기 - 다리 애니메이션 (더 큰 무릎 굽힘) */
+        @keyframes runLeftThigh {
+            0%, 100% { transform: rotate(25deg); }
+            25% { transform: rotate(-20deg); }
+            50% { transform: rotate(-30deg); }
+            75% { transform: rotate(20deg); }
+        }
+
+        @keyframes runLeftCalf {
+            0%, 100% { transform: rotate(-10deg); }
+            25% { transform: rotate(45deg); }
+            50% { transform: rotate(20deg); }
+            75% { transform: rotate(-25deg); }
+        }
+
+        @keyframes runRightThigh {
+            0%, 100% { transform: rotate(-30deg); }
+            25% { transform: rotate(20deg); }
+            50% { transform: rotate(25deg); }
+            75% { transform: rotate(-20deg); }
+        }
+
+        @keyframes runRightCalf {
+            0%, 100% { transform: rotate(20deg); }
+            25% { transform: rotate(-25deg); }
+            50% { transform: rotate(-10deg); }
+            75% { transform: rotate(45deg); }
         }
 
         .phase-display .phase-title { font-size: 3em; font-weight: 800; }
@@ -243,18 +360,30 @@
                 <div class="label">전체 남은 시간</div>
                 <div id="totalTime" class="time">30:00</div>
             </div>
-            <!-- ✨ CSS로 만든 졸라맨 애니메이션 -->
+            <!-- ✨ 개선된 자연스러운 졸라맨 애니메이션 -->
             <div class="animation-container">
                 <div id="stickman" class="stickman">
                     <div class="head"></div>
                     <div class="body"></div>
                     <div class="arms">
-                        <div class="arm left"></div>
-                        <div class="arm right"></div>
+                        <div class="arm-group left">
+                            <div class="upper-arm"></div>
+                            <div class="lower-arm"></div>
+                        </div>
+                        <div class="arm-group right">
+                            <div class="upper-arm"></div>
+                            <div class="lower-arm"></div>
+                        </div>
                     </div>
                     <div class="legs">
-                        <div class="leg left"></div>
-                        <div class="leg right"></div>
+                        <div class="leg-group left">
+                            <div class="thigh"></div>
+                            <div class="calf"></div>
+                        </div>
+                        <div class="leg-group right">
+                            <div class="thigh"></div>
+                            <div class="calf"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -291,7 +420,7 @@
     </div>
 
     <script>
-        // DOM 요소들
+        // DOM 요소들 (JavaScript는 이전과 동일)
         const startView = document.getElementById('startView');
         const workoutView = document.getElementById('workoutView');
         const headerTitle = document.getElementById('headerTitle');
@@ -328,7 +457,6 @@
             FINISHED: 'FINISHED'
         };
 
-        // 함수들
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
             const secs = seconds % 60;
@@ -355,8 +483,6 @@
             const info = phaseInfo[currentPhase];
             phaseTitleEl.textContent = info.title;
             phaseTitleEl.style.color = info.color;
-            
-            // ✨ 졸라맨 애니메이션 클래스 변경
             stickmanEl.className = `stickman ${info.animation}`;
         }
 
