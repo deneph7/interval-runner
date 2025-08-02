@@ -6,59 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(to right, #667eea, #764ba2);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 20px;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    #animation {
-      width: 300px;
-      height: 300px;
-      background: rgba(255, 255, 255, 0.08);
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-    #phase {
-      font-size: 22px;
-      margin-bottom: 10px;
-    }
-    #timer {
-      font-size: 28px;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-    .buttons {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    button {
-      background: rgba(255,255,255,0.2);
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    button:disabled {
-      opacity: 0.4;
-    }
+    body { font-family:sans-serif;margin:0;padding:0;background:linear-gradient(to right,#667eea,#764ba2);color:white;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:20px;}
+    h1 { margin-bottom:20px;}
+    #animation { width:300px;height:300px;background:rgba(255,255,255,0.08);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;}
+    #phase { font-size:22px;margin-bottom:10px;}
+    #timer { font-size:28px;font-weight:bold;margin-bottom:20px;}
+    .buttons { display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+    button { background:rgba(255,255,255,0.2);color:white;font-size:16px;font-weight:bold;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;}
+    button:disabled { opacity:0.4;}
   </style>
 </head>
 <body>
@@ -72,116 +27,79 @@
     <button onclick="stopWorkout()" id="stop" disabled>정지</button>
   </div>
 
-  <script>
-    let animation;
-    let timer = null;
-    let remaining = 0;
-    let isPaused = false;
-    let phase = "ready";
-    let currentCycle = 1;
-    const totalCycles = 5;
-    const warmup = 10;
-    const walk = 2;
-    const run = 2;
-
-    const animationContainer = document.getElementById("animation");
-    const phaseEl = document.getElementById("phase");
-    const timerEl = document.getElementById("timer");
-
-    function loadAnimation(path) {
-      if (animation) animation.destroy();
-      animation = lottie.loadAnimation({
-        container: animationContainer,
-        renderer: "svg",
-        loop: true,
-        autoplay: true,
-        path: path,
-      });
-    }
-
-    function displayTimer(sec) {
-      const m = String(Math.floor(sec / 60)).padStart(2, '0');
-      const s = String(sec % 60).padStart(2, '0');
-      timerEl.textContent = `${m}:${s}`;
-    }
-
-    function speak(text) {
-      if ('speechSynthesis' in window) {
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = 'ko-KR';
-        speechSynthesis.speak(u);
+<script>
+  let animation;
+  let timer=null,remaining=0,isPaused=false,phase="ready",currentCycle=1;
+  const totalCycles=5, warmup=10, walk=2, run=2;
+  const phaseEl=document.getElementById("phase"),timerEl=document.getElementById("timer"),animationContainer=document.getElementById("animation");
+  function loadAnimation(type){
+    if(animation) animation.destroy();
+    const urls={
+      "walk":"https://assets1.lottiefiles.com/packages/lf20_aD6XvY.json",     // 걷기
+      "run":"https://assets1.lottiefiles.com/packages/lf20_2LdLki.json"      // 뛰기
+    };
+    animation = lottie.loadAnimation({
+      container: animationContainer,
+      renderer: "svg",
+      loop: true,
+      autoplay: true,
+      path: type=="run"?urls.run:urls.walk
+    });
+  }
+  function displayTimer(sec){
+    const m=String(Math.floor(sec/60)).padStart(2,'0');
+    const s=String(sec%60).padStart(2,'0');
+    timerEl.textContent=`${m}:${s}`;
+  }
+  function speak(txt){
+    if ('speechSynthesis'in window){const u=new SpeechSynthesisUtterance(txt);u.lang='ko-KR';speechSynthesis.speak(u);}
+  }
+  function changePhase(p, sec, anim){
+    phase=p;remaining=sec*60;
+    phaseEl.textContent=p.toUpperCase();
+    loadAnimation(anim);
+    speak(p+" 시작");
+    displayTimer(remaining);
+  }
+  function startWorkout(){
+    document.getElementById("start").disabled=true;
+    document.getElementById("pause").disabled=false;
+    document.getElementById("stop").disabled=false;
+    currentCycle=1;
+    changePhase("워밍업",warmup,"walk");
+    runTimer();
+  }
+  function runTimer(){
+    if(timer)clearInterval(timer);
+    timer=setInterval(()=>{
+      if(!isPaused&&remaining>0){remaining--;displayTimer(remaining);}
+      else if(!isPaused&&remaining<=0){nextPhase();}
+    },1000);
+  }
+  function nextPhase(){
+    if(phase==="워밍업"){changePhase("걷기",walk,"walk");}
+    else if(phase==="걷기"){changePhase("뛰기",run,"run");}
+    else if(phase==="뛰기"){
+      currentCycle++;
+      if(currentCycle>totalCycles){
+        finish();
+      }else{
+        changePhase("걷기",walk,"walk");
       }
     }
-
-    function changePhase(p, sec, anim) {
-      phase = p;
-      remaining = sec * 60;
-      phaseEl.textContent = p.toUpperCase();
-      loadAnimation(anim);
-      speak(p + " 시작");
-    }
-
-    function startWorkout() {
-      document.getElementById("start").disabled = true;
-      document.getElementById("pause").disabled = false;
-      document.getElementById("stop").disabled = false;
-      currentCycle = 1;
-      changePhase("워밍업", warmup, "walk.json");
-      runTimer();
-    }
-
-    function runTimer() {
-      timer = setInterval(() => {
-        if (!isPaused && remaining > 0) {
-          remaining--;
-          displayTimer(remaining);
-        } else if (!isPaused && remaining <= 0) {
-          nextPhase();
-        }
-      }, 1000);
-    }
-
-    function nextPhase() {
-      if (phase === "워밍업") {
-        changePhase("걷기", walk, "walk.json");
-      } else if (phase === "걷기") {
-        changePhase("뛰기", run, "run.json");
-      } else if (phase === "뛰기") {
-        currentCycle++;
-        if (currentCycle > totalCycles) {
-          finish();
-        } else {
-          changePhase("걷기", walk, "walk.json");
-        }
-      }
-    }
-
-    function pauseWorkout() {
-      isPaused = !isPaused;
-      document.getElementById("pause").textContent = isPaused ? "재개" : "일시정지";
-    }
-
-    function stopWorkout() {
-      clearInterval(timer);
-      animation?.destroy();
-      phase = "ready";
-      timerEl.textContent = '00:00';
-      phaseEl.textContent = '중지됨';
-      document.getElementById("start").disabled = false;
-      document.getElementById("pause").disabled = true;
-      document.getElementById("stop").disabled = true;
-    }
-
-    function finish() {
-      clearInterval(timer);
-      animation?.destroy();
-      phase = "완료";
-      phaseEl.textContent = "🎉 끝!";
-      timerEl.textContent = "00:00";
-      speak("운동 완료");
-      document.getElementById("pause").disabled = true;
-      document.getElementById("stop").disabled = true;
-    }
-  </script>
+  }
+  function pauseWorkout(){
+    isPaused=!isPaused;
+    document.getElementById("pause").textContent=isPaused?"재개":"일시정지";
+  }
+  function stopWorkout(){
+    clearInterval(timer);animation?.destroy();phase="ready";timerEl.textContent='00:00';phaseEl.textContent='중지됨';
+    document.getElementById("start").disabled=false;document.getElementById("pause").disabled=true;document.getElementById("stop").disabled=true;
+  }
+  function finish(){
+    clearInterval(timer);animation?.destroy();phase="완료";phaseEl.textContent="🎉 끝!";timerEl.textContent="00:00";speak("운동 완료");
+    document.getElementById("pause").disabled=true;document.getElementById("stop").disabled=true;
+  }
+</script>
 </body>
 </html>
