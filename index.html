@@ -3,66 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>인터벌 트레이닝 (GIF 버전)</title>
+    <title>인터벌 트레이닝 (애니메이션 수정)</title>
     <style>
-        /* --- 기본 스타일 (이전과 동일) --- */
+        /* CSS 스타일은 이전과 동일합니다. */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f2f5;
-            color: #333;
-            text-align: center;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; margin: 0; background-color: #f0f2f5;
+            color: #333; text-align: center;
         }
-
         .container {
-            width: 100%;
-            max-width: 400px;
-            padding: 20px;
+            width: 100%; max-width: 400px; padding: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            background-color: #fff;
-            border-radius: 20px;
+            background-color: #fff; border-radius: 20px;
         }
-
         .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #e0e0e0; padding-bottom: 10px; margin-bottom: 20px;
         }
-        
         .header h1 { font-size: 1.5em; margin: 0; }
         #settingsBtn { background: none; border: none; cursor: pointer; font-size: 24px; }
         .view { display: none; }
         .view.active { display: block; }
         #startView h2 { font-size: 2em; font-weight: bold; }
         #startView p { color: #666; font-size: 1.1em; }
-
-        /* --- 운동 화면 스타일 --- */
         .timer-display { margin: 20px 0; }
         .timer-display .label { font-size: 1em; color: #888; }
         .timer-display .time { font-size: 2.5em; font-weight: bold; }
-
-        /* --- ✨ 애니메이션 영역 스타일 수정 --- */
         .animation-display {
-            height: 120px; /* 고정 높이 */
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            height: 120px; display: flex; justify-content: center; align-items: center; margin: 15px 0;
         }
         .animation-display img {
-            height: 100%; /* 부모 높이에 맞춤 */
-            width: auto;
+            max-height: 100%; width: auto;
         }
-
         .phase-display .phase-title { font-size: 3em; font-weight: 800; }
         .phase-display .phase-time { font-size: 5em; font-weight: bold; letter-spacing: -2px; }
-
         .btn {
             width: 80%; padding: 15px; border: none; border-radius: 12px;
             font-size: 1.2em; font-weight: bold; color: white; cursor: pointer;
@@ -72,8 +47,6 @@
         .btn-start:hover { background-color: #0056b3; }
         .btn-stop { background-color: #ff3b30; }
         .btn-stop:hover { background-color: #c00; }
-
-        /* --- 설정 창 (모달) 스타일 (이전과 동일) --- */
         .modal {
             display: none; position: fixed; z-index: 10; left: 0; top: 0;
             width: 100%; height: 100%; overflow: auto;
@@ -95,31 +68,24 @@
 <body>
 
     <div class="container">
-        <!-- 헤더 -->
+        <!-- HTML 구조는 이전과 동일합니다 -->
         <div class="header">
             <h1 id="headerTitle">준비</h1>
             <button id="settingsBtn">⚙️</button>
         </div>
-
-        <!-- 시작 화면 -->
         <div id="startView" class="view active">
             <h2>인터벌 트레이닝</h2>
             <p>준비가 되면 시작 버튼을 눌러주세요.</p>
             <button id="startBtn" class="btn btn-start">트레이닝 시작</button>
         </div>
-
-        <!-- 운동 진행 화면 -->
         <div id="workoutView" class="view">
             <div class="timer-display">
                 <div class="label">전체 남은 시간</div>
                 <div id="totalTime" class="time">30:00</div>
             </div>
-            
-            <!-- ✨ 애니메이션 표시 영역 (div -> img) -->
             <div class="animation-display">
                 <img id="animationImg" alt="운동 애니메이션">
             </div>
-
             <div class="phase-display">
                 <div id="phaseTitle" class="phase-title">워밍업</div>
                 <div id="phaseTime" class="phase-time">10:00</div>
@@ -127,8 +93,6 @@
             <button id="stopBtn" class="btn btn-stop">트레이닝 정지</button>
         </div>
     </div>
-
-    <!-- 설정 모달 (HTML 구조는 이전과 동일) -->
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -164,14 +128,12 @@
         const settingsBtn = document.getElementById('settingsBtn');
         const settingsModal = document.getElementById('settingsModal');
         const closeModalBtn = document.querySelector('.close-btn');
-
         const totalTimeEl = document.getElementById('totalTime');
-        // ✨ img 태그를 선택하도록 변경
         const animationImgEl = document.getElementById('animationImg'); 
         const phaseTitleEl = document.getElementById('phaseTitle');
         const phaseTimeEl = document.getElementById('phaseTime');
         
-        // --- 설정 값 관련 요소 (이전과 동일) ---
+        // --- 설정 값 관련 요소 ---
         const settings = {
             total: document.getElementById('totalDuration'),
             warmup: document.getElementById('warmupDuration'),
@@ -185,11 +147,9 @@
             run: document.getElementById('runIntervalLabel')
         };
 
-        // --- 앱 상태 변수 (이전과 동일) ---
+        // --- 앱 상태 변수 ---
         let timerInterval = null;
-        let totalTimeRemaining;
-        let phaseTimeRemaining;
-        let currentPhase;
+        let totalTimeRemaining, phaseTimeRemaining, currentPhase;
 
         const phases = {
             WARMING_UP: 'WARMING_UP',
@@ -198,23 +158,23 @@
             FINISHED: 'FINISHED'
         };
         
-        // --- ✨ 애니메이션 GIF 데이터 (Base64 인코딩) ---
-        // 파일이 없어도 이미지를 표시하기 위해 GIF 데이터를 직접 코드에 삽입했습니다.
-        const GIF_WARMUP = "image/gif;base64,R0lGODlhgAAPAPcAAHx+fMTCxKSmpGxudKSqpHyC Hx+fKSmpOTi4Ly+vExSVExSVLy+vGxudMTCxOTi4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/EADwQAAEDAwIEAwQGBgYHCQEAAAECAwQABREGEiExE0FRByJhcYEIFDKRobHwFUJSYnKCktEjosLh8SM0gpOz0yQ1VFVj4v/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwD5GooorqOYKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCii_id_x_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_id_aAovhFRRXkikJAADs=";
-        const GIF_WALKING = "image/gif;base64,R0lGODlhgAAPAPcAAHx+fMTCxKSmpGxudKSqpHyCHx+fKSmpOTi4Ly+vExSVExSVLy+vGxudMTCxOTi4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/EADwQAAEDAwIEAwQGBgYHCQEAAAECAwQABREGEiExE0FRByJhcYEIFDKRobHwFUJSYnKCktEjosLh8SM0gpOz0yQ1VFVj4v/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwD5GooorqOYKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAovhRRXkikJAADs=";
-        const GIF_RUNNING = "image/gif;base64,R0lGODlhgAAPAPcAAHx+fMTCxKSmpGxudKSqpHyCHx+fKSmpOTi4Ly+vExSVExSVLy+vGxudMTCxOTi4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/EADwQAAEDAwIEAwQGBgYHCQEAAAECAwQABREGEiExE0FRByJhcYEIFDKRobHwFUJSYnKCktEjosLh8SM0gpOz0yQ1VFVj4v/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwD5GooorqOYKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAovrRRXkikJAADs=";
-        const GIF_FINISHED = "image/gif;base64,R0lGODlhgAAPAPcAAHx+fMTCxKSmpGxudKSqpHyCHx+fKSmpOTi4Ly+vExSVExSVLy+vGxudMTCxOTi4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/EADwQAAEDAwIEAwQGBgYHCQEAAAECAwQABREGEiExE0FRByJhcYEIFDKRobHwFUJSYnKCktEjosLh8SM0gpOz0yQ1VFVj4v/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwD5GooorqOYKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAooooCiiigKKKKAovzRRXkikJAADs=";
+        // --- ✨ 애니메이션 GIF 데이터 (외부 URL로 변경) ---
+        // 인터넷 연결이 필요합니다.
+        const GIF_LINKS = {
+            WARMING_UP: "https://i.gifer.com/origin/b3/b382d56a293365851412a028045a5bbf_w200.gif",
+            WALKING: "https://i.gifer.com/origin/18/1802371a3818e3a297efe34164c489c7_w200.gif",
+            RUNNING: "https://i.gifer.com/origin/d8/d82a1ee7879f829598a964468d0115b8_w200.gif",
+            FINISHED: "https://i.gifer.com/7936.gif"
+        };
 
         // --- 함수 ---
 
-        // 초를 "mm:ss" 형식으로 변환하는 함수 (이전과 동일)
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
             const secs = seconds % 60;
             return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
 
-        // 뷰를 전환하는 함수 (이전과 동일)
         function switchView(viewToShow) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             viewToShow.classList.add('active');
@@ -226,26 +186,23 @@
             totalTimeEl.textContent = formatTime(totalTimeRemaining);
             phaseTimeEl.textContent = formatTime(phaseTimeRemaining);
 
-            // ✨ 상태별 정보에 emoji 대신 GIF 데이터 주소(animation)를 포함
             const phaseInfo = {
-                [phases.WARMING_UP]: { title: '워밍업', animation: GIF_WARMUP, color: '#2ecc71' },
-                [phases.RUNNING]: { title: '뛰는 시간', animation: GIF_RUNNING, color: '#e67e22' },
-                [phases.WALKING]: { title: '걷는 시간', animation: GIF_WALKING, color: '#3498db' },
-                [phases.FINISHED]: { title: '완료!', animation: GIF_FINISHED, color: '#95a5a6' }
+                [phases.WARMING_UP]: { title: '워밍업', animationUrl: GIF_LINKS.WARMING_UP, color: '#2ecc71' },
+                [phases.RUNNING]: { title: '뛰는 시간', animationUrl: GIF_LINKS.RUNNING, color: '#e67e22' },
+                [phases.WALKING]: { title: '걷는 시간', animationUrl: GIF_LINKS.WALKING, color: '#3498db' },
+                [phases.FINISHED]: { title: '완료!', animationUrl: GIF_LINKS.FINISHED, color: '#95a5a6' }
             };
             
             const info = phaseInfo[currentPhase] || phaseInfo[phases.FINISHED];
             phaseTitleEl.textContent = info.title;
             phaseTitleEl.style.color = info.color;
-
-            // ✨ textContent 대신 src를 변경하여 GIF를 교체
-            // GIF가 매 초마다 리셋되는 것을 방지하기 위해, 현재 src와 다를 때만 변경
-            if (animationImgEl.src !== info.animation) {
-                animationImgEl.src = info.animation;
+            
+            // 현재 이미지 소스가 새 소스와 다를 때만 변경하여 불필요한 리로드를 방지합니다.
+            if (animationImgEl.src !== info.animationUrl) {
+                animationImgEl.src = info.animationUrl;
             }
         }
 
-        // 다음 단계로 전환 (이전과 동일)
         function nextPhase() {
             if (currentPhase === phases.WARMING_UP) {
                 currentPhase = phases.RUNNING;
@@ -259,36 +216,28 @@
             }
         }
         
-        // 1초마다 타이머 업데이트 (이전과 동일)
         function tick() {
             if (totalTimeRemaining <= 0) {
                 stopWorkout('완료!');
                 return;
             }
-
             totalTimeRemaining--;
             phaseTimeRemaining--;
-
             if (phaseTimeRemaining < 0) {
                 nextPhase();
             }
-            
             updateUI();
         }
 
-        // 트레이닝 시작 (이전과 동일)
         function startWorkout() {
             totalTimeRemaining = settings.total.value * 60;
             phaseTimeRemaining = settings.warmup.value * 60;
             currentPhase = phases.WARMING_UP;
-            
             switchView(workoutView);
             updateUI();
-
             timerInterval = setInterval(tick, 1000);
         }
 
-        // 트레이닝 정지 (이전과 동일)
         function stopWorkout(endMessage = '정지') {
             clearInterval(timerInterval);
             timerInterval = null;
@@ -298,18 +247,17 @@
                 updateUI();
                 setTimeout(() => {
                     switchView(startView);
-                    animationImgEl.src = ""; // 정지 시 이미지 초기화
-                }, 3000);
+                    animationImgEl.src = ""; // 이미지 초기화
+                }, 4000); // 완료 GIF를 충분히 보여주기 위해 시간 약간 늘림
             } else {
                 switchView(startView);
-                animationImgEl.src = ""; // 정지 시 이미지 초기화
+                animationImgEl.src = ""; // 이미지 초기화
             }
         }
 
-        // --- 이벤트 리스너 (이전과 동일) ---
+        // --- 이벤트 리스너 ---
         startBtn.addEventListener('click', startWorkout);
         stopBtn.addEventListener('click', () => stopWorkout('정지'));
-
         settingsBtn.addEventListener('click', () => settingsModal.style.display = 'block');
         closeModalBtn.addEventListener('click', () => settingsModal.style.display = 'none');
         window.addEventListener('click', (event) => {
@@ -317,7 +265,6 @@
                 settingsModal.style.display = 'none';
             }
         });
-        
         Object.keys(settings).forEach(key => {
             settings[key].addEventListener('input', (e) => {
                 labels[key].textContent = e.target.value;
