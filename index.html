@@ -122,23 +122,23 @@ let totalSec = 1800, warmupSec = 600, walkSec = 120, runSec = 120;
 let currentPhase = 'ready';
 let currentCycle = 1;
 let totalCycle = 5, timer = null, remaining = 0;
-let isRunning = false, isPaused = false;
-let animation;
+let isPaused = false, animation;
 
 const lottieBox = document.getElementById("lottie");
 const urls = {
-  walking: "https://assets6.lottiefiles.com/temp/lf20_mJ0BKI.json",
+  walking: "https://lottie.host/85fd711e-c4c3-401e-a04d-bdf12f85dba6/HegJVZGrAU.lottie",
   running: "https://assets1.lottiefiles.com/packages/lf20_2LdLki.json"
 };
 
 function loadAnimation(type) {
   if (animation) animation.destroy();
+  const path = (type === 'running') ? urls.running : urls.walking;
   animation = lottie.loadAnimation({
     container: lottieBox,
     renderer: "svg",
     loop: true,
     autoplay: true,
-    path: type === 'running' ? urls.running : urls.walking
+    path: path
   });
 }
 
@@ -158,8 +158,8 @@ function format(sec) {
 
 function updateUI() {
   document.getElementById("timerText").textContent = format(remaining);
-  document.getElementById("walkDisplay").textContent = currentPhase === 'walking' ? format(remaining) : format(walkSec);
-  document.getElementById("runDisplay").textContent = currentPhase === 'running' ? format(remaining) : format(runSec);
+  document.getElementById("walkDisplay").textContent = currentPhase === '걷기' ? format(remaining) : format(walkSec);
+  document.getElementById("runDisplay").textContent = currentPhase === '뛰기' ? format(remaining) : format(runSec);
 }
 
 function updatePhase(name, sec, animType) {
@@ -227,6 +227,7 @@ function pause() {
 
 function stop() {
   clearInterval(timer);
+  if (animation) animation.destroy();
   document.getElementById("startBtn").disabled = false;
   document.getElementById("pauseBtn").disabled = true;
   document.getElementById("stopBtn").disabled = true;
