@@ -1,649 +1,271 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="인터벌 러너">
-    <title>인터벌 러너</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+  <meta charset="UTF-8">
+  <title>인터벌 러너</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, sans-serif;
+      background: linear-gradient(to right, #667eea, #764ba2);
+      margin: 0; padding: 20px;
+      color: white;
+    }
+    .container { max-width: 600px; margin: 0 auto; text-align: center; }
+    h1 { margin-bottom: 10px; }
+    #lottie { width: 280px; height: 280px; margin: 0 auto 20px; background: rgba(255,255,255,0.08); border-radius: 20px; }
+    .phase { font-size: 20px; margin-bottom: 6px; }
+    .timer { font-size: 36px; font-weight: bold; margin-bottom: 15px; }
+    .info-row { display: flex; justify-content: space-around; margin-bottom: 20px; }
+    .info-box { text-align: center; }
+    .info-box span { display: block; font-size: 20px; }
+    .progress-bar {
+      height: 10px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 5px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .fill { height: 100%; width: 0%; background: #4caf50; transition: width 0.3s ease-out; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: white;
-            overflow-x: hidden;
-        }
+    .btns {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+    }
+    button {
+      padding: 12px 20px;
+      background: rgba(255,255,255,0.2);
+      border: none; color: white;
+      font-size: 16px; font-weight: bold;
+      border-radius: 8px; cursor: pointer;
+    }
+    button:disabled { opacity: 0.5; }
+    .settings { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .total-time {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .settings-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            border-radius: 15px;
-            padding: 12px;
-            font-size: 24px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .settings-btn:active {
-            transform: scale(0.95);
-            background: rgba(255,255,255,0.3);
-        }
-
-        .phase-display {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .current-phase {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .phase-time {
-            font-size: 48px;
-            font-weight: 300;
-            color: #ffd700;
-        }
-
-        .animation-container {
-            background: rgba(255,255,255,0.1);
-            border-radius: 20px;
-            padding: 40px;
-            margin: 30px 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 300px;
-        }
-
-        #lottie-player {
-            width: 250px;
-            height: 250px;
-        }
-
-        .interval-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .interval-card {
-            background: rgba(255,255,255,0.15);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-        }
-
-        .interval-title {
-            font-size: 16px;
-            opacity: 0.8;
-            margin-bottom: 10px;
-        }
-
-        .interval-time {
-            font-size: 32px;
-            font-weight: bold;
-        }
-
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: auto;
-        }
-
-        .control-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            border-radius: 15px;
-            padding: 20px;
-            font-size: 18px;
-            font-weight: 600;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s;
-            min-height: 60px;
-        }
-
-        .control-btn:active {
-            transform: scale(0.95);
-        }
-
-        .control-btn.primary {
-            background: #4CAF50;
-        }
-
-        .control-btn.danger {
-            background: #f44336;
-        }
-
-        .control-btn.warning {
-            background: #ff9800;
-        }
-
-        .control-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .progress-bar {
-            background: rgba(255,255,255,0.2);
-            height: 8px;
-            border-radius: 4px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            background: #4CAF50;
-            height: 100%;
-            transition: width 1s ease-out;
-            border-radius: 4px;
-        }
-
-        /* 설정 모달 */
-        .settings-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .settings-content {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 400px;
-            width: 90%;
-            color: #333;
-        }
-
-        .settings-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .setting-row {
-            margin-bottom: 25px;
-        }
-
-        .setting-label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .setting-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 16px;
-            background: #f9f9f9;
-        }
-
-        .setting-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .modal-btn {
-            padding: 15px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .modal-btn.save {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .modal-btn.cancel {
-            background: #f44336;
-            color: white;
-        }
-
-        /* 반응형 디자인 */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-
-            .interval-info {
-                grid-template-columns: 1fr;
-            }
-
-            .phase-time {
-                font-size: 36px;
-            }
-
-            .controls {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    .modal {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: none; justify-content: center; align-items: center;
+      z-index: 1000;
+    }
+    .modal.show { display: flex; }
+    .modal-content {
+      background: white; color: #333;
+      padding: 20px; border-radius: 14px; width: 300px;
+    }
+    .modal-content h2 { margin-bottom: 20px; }
+    .modal-content label { display: block; margin: 10px 0 5px; font-weight: bold; }
+    .modal-content input {
+      width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;
+    }
+    .modal-content .modal-btns {
+      margin-top: 20px; display: flex; justify-content: space-between;
+    }
+    .modal-content button {
+      flex: 1; margin: 5px;
+      background: #4caf50; color: white; border: none;
+    }
+    .modal-content .cancel {
+      background: #f44336;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="total-time">전체시간: <span id="totalTimeDisplay">30분</span></div>
-            <button class="settings-btn" onclick="openSettings()">⚙️</button>
-        </div>
+<div class="container">
+  <div class="settings" onclick="openSettings()">⚙️</div>
+  <h1>인터벌 러너</h1>
+  <div id="lottie"></div>
+  <div class="phase" id="phaseText">준비</div>
+  <div class="timer" id="timerText">00:00</div>
 
-        <div class="phase-display">
-            <div class="current-phase" id="currentPhase">준비</div>
-            <div class="phase-time" id="phaseTime">00:00</div>
-        </div>
+  <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
 
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-        </div>
-
-        <div class="animation-container">
-            <div id="lottie-player"></div>
-        </div>
-
-        <div class="interval-info">
-            <div class="interval-card">
-                <div class="interval-title">걷기</div>
-                <div class="interval-time" id="walkTimeDisplay">2:00</div>
-            </div>
-            <div class="interval-card">
-                <div class="interval-title">뛰기</div>
-                <div class="interval-time" id="runTimeDisplay">2:00</div>
-            </div>
-        </div>
-
-        <div class="controls">
-            <button class="control-btn primary" id="startBtn" onclick="startWorkout()">시작</button>
-            <button class="control-btn warning" id="pauseBtn" onclick="pauseWorkout()" disabled>일시정지</button>
-            <button class="control-btn danger" id="stopBtn" onclick="stopWorkout()" disabled>정지</button>
-            <button class="control-btn" id="nextBtn" onclick="nextPhase()" disabled>다음단계</button>
-        </div>
+  <div class="info-row">
+    <div class="info-box">
+      <strong>걷기</strong>
+      <span id="walkDisplay">02:00</span>
     </div>
-
-    <!-- 설정 모달 -->
-    <div class="settings-modal" id="settingsModal">
-        <div class="settings-content">
-            <div class="settings-title">운동 설정</div>
-            <div class="setting-row">
-                <label class="setting-label">전체 트레이닝 시간 (분)</label>
-                <input type="number" class="setting-input" id="totalTimeInput" value="30" min="5" max="120">
-            </div>
-            <div class="setting-row">
-                <label class="setting-label">워밍업 시간 (분)</label>
-                <input type="number" class="setting-input" id="warmupTimeInput" value="10" min="0" max="20">
-            </div>
-            <div class="setting-row">
-                <label class="setting-label">걷기 시간 (분)</label>
-                <input type="number" class="setting-input" id="walkTimeInput" value="2" min="1" max="10">
-            </div>
-            <div class="setting-row">
-                <label class="setting-label">뛰기 시간 (분)</label>
-                <input type="number" class="setting-input" id="runTimeInput" value="2" min="1" max="10">
-            </div>
-            <div class="setting-buttons">
-                <button class="modal-btn cancel" onclick="closeSettings()">취소</button>
-                <button class="modal-btn save" onclick="saveSettings()">저장</button>
-            </div>
-        </div>
+    <div class="info-box">
+      <strong>뛰기</strong>
+      <span id="runDisplay">02:00</span>
     </div>
+  </div>
 
-    <script>
-        // 전역 변수
-        let currentPhase = 'ready';
-        let remainingTime = 0;
-        let totalTime = 30 * 60; // 30분
-        let warmupTime = 10 * 60; // 10분
-        let walkTime = 2 * 60; // 2분
-        let runTime = 2 * 60; // 2분
-        let isPaused = false;
-        let isRunning = false;
-        let timer = null;
-        let currentCycle = 1;
-        let totalCycles = 1;
-        let animation = null;
+  <div class="btns">
+    <button onclick="start()" id="startBtn">시작</button>
+    <button onclick="pause()" id="pauseBtn" disabled>일시정지</button>
+    <button onclick="stop()" id="stopBtn" disabled>정지</button>
+    <button onclick="next()" id="nextBtn" disabled>다음</button>
+  </div>
+</div>
 
-        // DOM 요소들
-        const elements = {
-            currentPhase: document.getElementById('currentPhase'),
-            phaseTime: document.getElementById('phaseTime'),
-            progressFill: document.getElementById('progressFill'),
-            lottiePlayer: document.getElementById('lottie-player'),
-            startBtn: document.getElementById('startBtn'),
-            pauseBtn: document.getElementById('pauseBtn'),
-            stopBtn: document.getElementById('stopBtn'),
-            nextBtn: document.getElementById('nextBtn'),
-            walkTimeDisplay: document.getElementById('walkTimeDisplay'),
-            runTimeDisplay: document.getElementById('runTimeDisplay'),
-            totalTimeDisplay: document.getElementById('totalTimeDisplay')
-        };
+<div class="modal" id="settingsModal">
+  <div class="modal-content">
+    <h2>설정</h2>
+    <label>전체 운동 시간 (분)</label>
+    <input type="number" id="totalInput" value="30" min="5" max="120" />
+    <label>워밍업 시간 (분)</label>
+    <input type="number" id="warmupInput" value="10" />
+    <label>걷기 시간 (분)</label>
+    <input type="number" id="walkInput" value="2" />
+    <label>뛰기 시간 (분)</label>
+    <input type="number" id="runInput" value="2" />
+    <div class="modal-btns">
+      <button onclick="closeSettings()" class="cancel">취소</button>
+      <button onclick="saveSettings()">저장</button>
+    </div>
+  </div>
+</div>
 
-        // Lottie 애니메이션 로드
-        function loadLottieAnimation(type) {
-            if (animation) {
-                animation.destroy();
-            }
-            
-            // 외부 URL 사용 (확실한 애니메이션)
-            const animationUrls = {
-                walking: 'https://assets1.lottiefiles.com/packages/lf20_aD6XvY.json',
-                running: 'https://assets1.lottiefiles.com/packages/lf20_2LdLki.json'
-            };
-            
-            animation = lottie.loadAnimation({
-                container: elements.lottiePlayer,
-                renderer: 'svg',
-                loop: true,
-                autoplay: true,
-                path: animationUrls[type] || animationUrls.walking
-            });
-        }
+<script>
+let totalSec = 1800, warmupSec = 600, walkSec = 120, runSec = 120;
+let currentPhase = 'ready';
+let currentCycle = 1;
+let totalCycle = 5, timer = null, remaining = 0;
+let isRunning = false, isPaused = false;
+let animation;
 
-        // 초기화
-        function init() {
-            updateDisplay();
-            calculateCycles();
-            updateTimeDisplays();
-            loadLottieAnimation('walking'); // 초기 애니메이션 로드
-        }
+const lottieBox = document.getElementById("lottie");
+const urls = {
+  walking: "https://assets6.lottiefiles.com/temp/lf20_mJ0BKI.json",
+  running: "https://assets1.lottiefiles.com/packages/lf20_2LdLki.json"
+};
 
-        // 사이클 수 계산
-        function calculateCycles() {
-            const intervalTime = walkTime + runTime;
-            const availableTime = totalTime - warmupTime;
-            totalCycles = Math.floor(availableTime / intervalTime);
-        }
+function loadAnimation(type) {
+  if (animation) animation.destroy();
+  animation = lottie.loadAnimation({
+    container: lottieBox,
+    renderer: "svg",
+    loop: true,
+    autoplay: true,
+    path: type === 'running' ? urls.running : urls.walking
+  });
+}
 
-        // 시간 포맷팅
-        function formatTime(seconds) {
-            const mins = Math.floor(seconds / 60);
-            const secs = seconds % 60;
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
-        }
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'ko-KR';
+    speechSynthesis.speak(msg);
+  }
+}
 
-        // 화면 업데이트
-        function updateDisplay() {
-            elements.phaseTime.textContent = formatTime(remainingTime);
-            
-            // 진행률 계산
-            let progress = 0;
-            const totalSeconds = totalTime;
-            const elapsed = totalSeconds - remainingTime;
-            
-            if (currentPhase !== 'ready') {
-                progress = (elapsed / totalSeconds) * 100;
-            }
-            
-            elements.progressFill.style.width = `${Math.min(progress, 100)}%`;
-            
-            // 남은 시간 실시간 업데이트
-            updateRemainingTimeDisplay();
-        }
+function format(sec) {
+  const m = String(Math.floor(sec / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  return `${m}:${s}`;
+}
 
-        // 남은 시간 표시 업데이트
-        function updateRemainingTimeDisplay() {
-            if (currentPhase === 'walking') {
-                elements.walkTimeDisplay.textContent = formatTime(remainingTime);
-                elements.runTimeDisplay.textContent = formatTime(runTime);
-            } else if (currentPhase === 'running') {
-                elements.walkTimeDisplay.textContent = formatTime(walkTime);
-                elements.runTimeDisplay.textContent = formatTime(remainingTime);
-            } else {
-                elements.walkTimeDisplay.textContent = formatTime(walkTime);
-                elements.runTimeDisplay.textContent = formatTime(runTime);
-            }
-        }
+function updateUI() {
+  document.getElementById("timerText").textContent = format(remaining);
+  document.getElementById("walkDisplay").textContent = currentPhase === 'walking' ? format(remaining) : format(walkSec);
+  document.getElementById("runDisplay").textContent = currentPhase === 'running' ? format(remaining) : format(runSec);
+}
 
-        // 시간 표시 업데이트
-        function updateTimeDisplays() {
-            elements.walkTimeDisplay.textContent = formatTime(walkTime);
-            elements.runTimeDisplay.textContent = formatTime(runTime);
-            elements.totalTimeDisplay.textContent = `${Math.floor(totalTime / 60)}분`;
-        }
+function updatePhase(name, sec, animType) {
+  currentPhase = name;
+  remaining = sec;
+  document.getElementById("phaseText").textContent = `${name} (${currentCycle}/${totalCycle})`;
+  loadAnimation(animType);
+  speak(`${name} 시작`);
+  updateUI();
+}
 
-        // 단계 변경
-        function changePhase(newPhase, time) {
-            currentPhase = newPhase;
-            remainingTime = time;
-            
-            switch (newPhase) {
-                case 'warmup':
-                    elements.currentPhase.textContent = `워밍업 (${currentCycle}/${totalCycles})`;
-                    loadLottieAnimation('walking');
-                    break;
-                case 'walking':
-                    elements.currentPhase.textContent = `걷기 (${currentCycle}/${totalCycles})`;
-                    loadLottieAnimation('walking');
-                    break;
-                case 'running':
-                    elements.currentPhase.textContent = `뛰기 (${currentCycle}/${totalCycles})`;
-                    loadLottieAnimation('running');
-                    break;
-                case 'completed':
-                    elements.currentPhase.textContent = '완료!';
-                    loadLottieAnimation('walking');
-                    break;
-                default:
-                    elements.currentPhase.textContent = '준비';
-                    loadLottieAnimation('walking');
-            }
-            
-            updateDisplay();
-            
-            // 음성 안내 (가능한 경우)
-            if (window.speechSynthesis) {
-                const utterance = new SpeechSynthesisUtterance(elements.currentPhase.textContent);
-                utterance.lang = 'ko-KR';
-                utterance.volume = 0.5;
-                speechSynthesis.speak(utterance);
-            }
-            
-            // 햅틱 피드백 (가능한 경우)
-            if (navigator.vibrate) {
-                if (newPhase === 'running') {
-                    navigator.vibrate([200, 100, 200]);
-                } else if (newPhase === 'walking') {
-                    navigator.vibrate(100);
-                }
-            }
-        }
+function start() {
+  totalCycle = Math.floor((totalSec - warmupSec) / (walkSec + runSec));
+  currentCycle = 1;
+  document.getElementById("startBtn").disabled = true;
+  document.getElementById("pauseBtn").disabled = false;
+  document.getElementById("stopBtn").disabled = false;
+  document.getElementById("nextBtn").disabled = false;
+  updatePhase("워밍업", warmupSec, "walking");
+  runTimer();
+}
 
-        // 운동 시작
-        function startWorkout() {
-            isRunning = true;
-            isPaused = false;
-            currentCycle = 1;
-            
-            // 워밍업으로 시작
-            changePhase('warmup', warmupTime);
-            
-            // 버튼 상태 변경
-            elements.startBtn.disabled = true;
-            elements.pauseBtn.disabled = false;
-            elements.stopBtn.disabled = false;
-            elements.nextBtn.disabled = false;
-            
-            // 타이머 시작
-            startTimer();
-        }
+function runTimer() {
+  timer = setInterval(() => {
+    if (!isPaused && remaining > 0) {
+      remaining--;
+      updateUI();
+      updateProgress();
+    } else if (!isPaused && remaining === 0) {
+      next();
+    }
+  }, 1000);
+}
 
-        // 타이머 시작
-        function startTimer() {
-            timer = setInterval(() => {
-                if (!isPaused && isRunning) {
-                    remainingTime--;
-                    updateDisplay();
-                    
-                    if (remainingTime <= 0) {
-                        nextPhase();
-                    }
-                }
-            }, 1000);
-        }
+function next() {
+  if (currentPhase === "워밍업") {
+    updatePhase("걷기", walkSec, "walking");
+  } else if (currentPhase === "걷기") {
+    updatePhase("뛰기", runSec, "running");
+  } else if (currentPhase === "뛰기") {
+    currentCycle++;
+    if (currentCycle > totalCycle) finish();
+    else updatePhase("걷기", walkSec, "walking");
+  }
+}
 
-        // 다음 단계로
-        function nextPhase() {
-            switch (currentPhase) {
-                case 'warmup':
-                    changePhase('walking', walkTime);
-                    break;
-                case 'walking':
-                    changePhase('running', runTime);
-                    break;
-                case 'running':
-                    if (currentCycle < totalCycles) {
-                        currentCycle++;
-                        changePhase('walking', walkTime);
-                    } else {
-                        changePhase('completed', 0);
-                        stopWorkout();
-                    }
-                    break;
-            }
-        }
+function updateProgress() {
+  const elapsed = totalSec - getTotalRemaining();
+  const percent = (elapsed / totalSec) * 100;
+  document.getElementById("progressFill").style.width = `${percent}%`;
+}
 
-        // 일시정지
-        function pauseWorkout() {
-            isPaused = !isPaused;
-            elements.pauseBtn.textContent = isPaused ? '재개' : '일시정지';
-            elements.pauseBtn.className = isPaused ? 'control-btn primary' : 'control-btn warning';
-        }
+function getTotalRemaining() {
+  return (
+    (currentPhase === "워밍업" ? 0 : warmupSec) +
+    (totalCycle - currentCycle + 1) * (walkSec + runSec) -
+    remaining
+  );
+}
 
-        // 정지
-        function stopWorkout() {
-            isRunning = false;
-            isPaused = false;
-            
-            if (timer) {
-                clearInterval(timer);
-                timer = null;
-            }
-            
-            // 초기 상태로 리셋
-            currentPhase = 'ready';
-            remainingTime = 0;
-            currentCycle = 1;
-            
-            elements.currentPhase.textContent = '준비';
-            elements.phaseTime.textContent = '00:00';
-            elements.progressFill.style.width = '0%';
-            loadLottieAnimation('walking');
-            
-            // 버튼 상태 리셋
-            elements.startBtn.disabled = false;
-            elements.pauseBtn.disabled = true;
-            elements.stopBtn.disabled = true;
-            elements.nextBtn.disabled = true;
-            elements.pauseBtn.textContent = '일시정지';
-            elements.pauseBtn.className = 'control-btn warning';
-            
-            updateTimeDisplays();
-        }
+function pause() {
+  isPaused = !isPaused;
+  document.getElementById("pauseBtn").textContent = isPaused ? "재개" : "일시정지";
+}
 
-        // 설정 모달 열기
-        function openSettings() {
-            document.getElementById('settingsModal').style.display = 'flex';
-            
-            // 현재 값들을 입력 필드에 설정
-            document.getElementById('totalTimeInput').value = totalTime / 60;
-            document.getElementById('warmupTimeInput').value = warmupTime / 60;
-            document.getElementById('walkTimeInput').value = walkTime / 60;
-            document.getElementById('runTimeInput').value = runTime / 60;
-        }
+function stop() {
+  clearInterval(timer);
+  document.getElementById("startBtn").disabled = false;
+  document.getElementById("pauseBtn").disabled = true;
+  document.getElementById("stopBtn").disabled = true;
+  document.getElementById("nextBtn").disabled = true;
+  currentPhase = "ready";
+  remaining = 0;
+  document.getElementById("phaseText").textContent = "중지됨";
+  document.getElementById("timerText").textContent = "00:00";
+  document.getElementById("progressFill").style.width = "0%";
+  updateUI();
+}
 
-        // 설정 모달 닫기
-        function closeSettings() {
-            document.getElementById('settingsModal').style.display = 'none';
-        }
+function finish() {
+  stop();
+  document.getElementById("phaseText").textContent = "완료 🎉";
+  speak("운동 완료");
+}
 
-        // 설정 저장
-        function saveSettings() {
-            totalTime = parseInt(document.getElementById('totalTimeInput').value) * 60;
-            warmupTime = parseInt(document.getElementById('warmupTimeInput').value) * 60;
-            walkTime = parseInt(document.getElementById('walkTimeInput').value) * 60;
-            runTime = parseInt(document.getElementById('runTimeInput').value) * 60;
-            
-            calculateCycles();
-            updateTimeDisplays();
-            closeSettings();
-            
-            // 운동 중이면 정지
-            if (isRunning) {
-                stopWorkout();
-            }
-        }
+function openSettings() {
+  document.getElementById("settingsModal").classList.add("show");
+  document.getElementById("totalInput").value = totalSec / 60;
+  document.getElementById("warmupInput").value = warmupSec / 60;
+  document.getElementById("walkInput").value = walkSec / 60;
+  document.getElementById("runInput").value = runSec / 60;
+}
 
-        // 페이지 로드 시 초기화
-        window.addEventListener('load', init);
+function closeSettings() {
+  document.getElementById("settingsModal").classList.remove("show");
+}
 
-        // 백그라운드에서 타이머 일시정지 방지
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden && isRunning && !isPaused) {
-                // 백그라운드 진입 시 현재 시간 저장
-                localStorage.setItem('backgroundTime', Date.now());
-            } else if (!document.hidden && isRunning && !isPaused) {
-                // 포그라운드 복귀 시 경과 시간 계산
-                const backgroundTime = localStorage.getItem('backgroundTime');
-                if (backgroundTime) {
-                    const elapsed = Math.floor((Date.now() - parseInt(backgroundTime)) / 1000);
-                    remainingTime = Math.max(0, remainingTime - elapsed);
-                    updateDisplay();
-                    localStorage.removeItem('backgroundTime');
-                }
-            }
-        });
-
-        // 터치 제스처 최적화
-        document.addEventListener('touchstart', () => {}, { passive: true });
-        document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-    </script>
+function saveSettings() {
+  totalSec = parseInt(document.getElementById("totalInput").value) * 60;
+  warmupSec = parseInt(document.getElementById("warmupInput").value) * 60;
+  walkSec = parseInt(document.getElementById("walkInput").value) * 60;
+  runSec = parseInt(document.getElementById("runInput").value) * 60;
+  document.getElementById("walkDisplay").textContent = format(walkSec);
+  document.getElementById("runDisplay").textContent = format(runSec);
+  closeSettings();
+}
+</script>
 </body>
 </html>
