@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>인터벌 트레이닝 (GIF 버전)</title>
+    <title>인터벌 트레이닝 (워밍업도 걷기)</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -30,7 +30,7 @@
         .timer-display .label { font-size: 1em; color: #888; }
         .timer-display .time { font-size: 2.5em; font-weight: bold; }
 
-        /* ✨ GIF 애니메이션을 위한 간단한 스타일 */
+        /* GIF 애니메이션 스타일 */
         .animation-container {
             height: 150px;
             display: flex;
@@ -90,7 +90,6 @@
                 <div class="label">전체 남은 시간</div>
                 <div id="totalTime" class="time">30:00</div>
             </div>
-            <!-- ✨ GIF 파일을 표시할 img 태그 -->
             <div class="animation-container">
                 <img id="animationImg" alt="운동 애니메이션" src="">
             </div>
@@ -137,7 +136,7 @@
         const settingsModal = document.getElementById('settingsModal');
         const closeModalBtn = document.querySelector('.close-btn');
         const totalTimeEl = document.getElementById('totalTime');
-        const animationImg = document.getElementById('animationImg'); // ✨ img 태그 참조
+        const animationImg = document.getElementById('animationImg');
         const phaseTitleEl = document.getElementById('phaseTitle');
         const phaseTimeEl = document.getElementById('phaseTime');
         
@@ -164,11 +163,9 @@
             FINISHED: 'FINISHED'
         };
 
-        // ✨ 로컬 GIF 파일 경로 설정
-        const ANIMATIONS = {
-            walking: 'walkman.gif',
-            running: 'runman.gif'
-        };
+        // GIF 파일 경로
+        const WALK_GIF = 'walkman.gif';
+        const RUN_GIF = 'runman.gif';
 
         // 함수들
         function formatTime(seconds) {
@@ -183,7 +180,7 @@
             headerTitle.textContent = viewToShow === workoutView ? '트레이닝 중' : '준비';
         }
 
-        // ✨ UI 업데이트 함수 - GIF 파일로 애니메이션 변경
+        // ✨ 워밍업도 걷기 이미지 사용하도록 설정
         function updateUI() {
             totalTimeEl.textContent = formatTime(totalTimeRemaining);
             phaseTimeEl.textContent = formatTime(phaseTimeRemaining);
@@ -192,22 +189,22 @@
                 [phases.WARMING_UP]: { 
                     title: '워밍업', 
                     color: '#2ecc71', 
-                    animation: ANIMATIONS.walking 
+                    gifFile: WALK_GIF  // ✨ 워밍업 시에도 걷기 GIF 사용
                 },
                 [phases.RUNNING]: { 
                     title: '뛰는 시간', 
                     color: '#e67e22', 
-                    animation: ANIMATIONS.running 
+                    gifFile: RUN_GIF   // 뛰기 GIF 사용
                 },
                 [phases.WALKING]: { 
                     title: '걷는 시간', 
                     color: '#3498db', 
-                    animation: ANIMATIONS.walking 
+                    gifFile: WALK_GIF  // 걷기 GIF 사용
                 },
                 [phases.FINISHED]: { 
                     title: '완료!', 
                     color: '#95a5a6', 
-                    animation: '' 
+                    gifFile: null      // 완료 시 이미지 없음
                 }
             };
             
@@ -215,10 +212,10 @@
             phaseTitleEl.textContent = info.title;
             phaseTitleEl.style.color = info.color;
             
-            // ✨ GIF 파일 변경 (현재와 다른 경우에만)
-            if (info.animation && animationImg.src !== info.animation) {
-                animationImg.src = info.animation;
-            } else if (!info.animation) {
+            // GIF 파일 변경 (현재와 다른 경우에만)
+            if (info.gifFile && animationImg.src !== info.gifFile) {
+                animationImg.src = info.gifFile;
+            } else if (!info.gifFile) {
                 animationImg.src = ''; // 완료 시 이미지 제거
             }
         }
@@ -254,7 +251,7 @@
             phaseTimeRemaining = settings.warmup.value * 60;
             currentPhase = phases.WARMING_UP;
             switchView(workoutView);
-            updateUI(); // ✨ 시작과 동시에 워밍업 애니메이션 표시
+            updateUI(); // 워밍업 시작과 동시에 걷기 애니메이션 표시
             timerInterval = setInterval(tick, 1000);
         }
 
@@ -265,7 +262,6 @@
             if (endMessage === '완료!') {
                 currentPhase = phases.FINISHED;
                 updateUI();
-                // 완료 메시지 표시 후 3초 뒤 시작 화면으로 복귀
                 setTimeout(() => {
                     switchView(startView);
                     animationImg.src = ''; // 애니메이션 이미지 초기화
