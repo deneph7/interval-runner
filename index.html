@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>인터벌 트레이닝 (애니메이션 수정)</title>
+    <title>인터벌 트레이닝 (Lottie 애니메이션)</title>
+    <!-- ✨ Lottie 플레이어 라이브러리 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     <style>
         /* CSS 스타일은 이전과 동일합니다. */
         body {
@@ -30,12 +32,14 @@
         .timer-display { margin: 20px 0; }
         .timer-display .label { font-size: 1em; color: #888; }
         .timer-display .time { font-size: 2.5em; font-weight: bold; }
-        .animation-display {
-            height: 120px; display: flex; justify-content: center; align-items: center; margin: 15px 0;
+        
+        /* ✨ Lottie 애니메이션을 표시할 컨테이너 스타일 */
+        #animation-container {
+            height: 150px;
+            width: 100%;
+            margin: 15px 0;
         }
-        .animation-display img {
-            max-height: 100%; width: auto;
-        }
+
         .phase-display .phase-title { font-size: 3em; font-weight: 800; }
         .phase-display .phase-time { font-size: 5em; font-weight: bold; letter-spacing: -2px; }
         .btn {
@@ -44,35 +48,27 @@
             margin-top: 20px; transition: background-color 0.2s;
         }
         .btn-start { background-color: #007aff; }
-        .btn-start:hover { background-color: #0056b3; }
         .btn-stop { background-color: #ff3b30; }
-        .btn-stop:hover { background-color: #c00; }
         .modal {
             display: none; position: fixed; z-index: 10; left: 0; top: 0;
             width: 100%; height: 100%; overflow: auto;
-            background-color: rgba(0,0,0,0.5); animation: fadeIn 0.3s;
+            background-color: rgba(0,0,0,0.5);
         }
         .modal-content {
             background-color: #fefefe; margin: 15% auto; padding: 25px;
-            border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 15px;
+            border-radius: 15px; width: 80%; max-width: 500px;
         }
         .modal-header { display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h2 { margin: 0; }
-        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close-btn { font-size: 28px; font-weight: bold; cursor: pointer; }
         .setting { margin: 20px 0; }
         .setting label { display: block; margin-bottom: 10px; font-weight: 500; }
         .setting input[type="range"] { width: 100%; }
-        @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <!-- HTML 구조는 이전과 동일합니다 -->
-        <div class="header">
-            <h1 id="headerTitle">준비</h1>
-            <button id="settingsBtn">⚙️</button>
-        </div>
+        <!-- HTML 구조는 거의 동일합니다 -->
+        <div class="header"><h1 id="headerTitle">준비</h1><button id="settingsBtn">⚙️</button></div>
         <div id="startView" class="view active">
             <h2>인터벌 트레이닝</h2>
             <p>준비가 되면 시작 버튼을 눌러주세요.</p>
@@ -83,9 +79,8 @@
                 <div class="label">전체 남은 시간</div>
                 <div id="totalTime" class="time">30:00</div>
             </div>
-            <div class="animation-display">
-                <img id="animationImg" alt="운동 애니메이션">
-            </div>
+            <!-- ✨ 애니메이션 컨테이너 (이전 img 태그에서 변경) -->
+            <div id="animation-container"></div>
             <div class="phase-display">
                 <div id="phaseTitle" class="phase-title">워밍업</div>
                 <div id="phaseTime" class="phase-time">10:00</div>
@@ -95,31 +90,17 @@
     </div>
     <div id="settingsModal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>설정</h2>
-                <span class="close-btn">&times;</span>
-            </div>
-            <div class="setting">
-                <label for="totalDuration">전체 트레이닝 시간: <span id="totalDurationLabel">30</span>분</label>
-                <input type="range" id="totalDuration" min="1" max="60" value="30">
-            </div>
-            <div class="setting">
-                <label for="warmupDuration">최초 워밍업 시간: <span id="warmupDurationLabel">10</span>분</label>
-                <input type="range" id="warmupDuration" min="1" max="20" value="10">
-            </div>
-            <div class="setting">
-                <label for="walkInterval">걷는 시간: <span id="walkIntervalLabel">2</span>분</label>
-                <input type="range" id="walkInterval" min="1" max="10" value="2">
-            </div>
-            <div class="setting">
-                <label for="runInterval">뛰는 시간: <span id="runIntervalLabel">2</span>분</label>
-                <input type="range" id="runInterval" min="1" max="10" value="2">
-            </div>
+            <div class="modal-header"><h2>설정</h2><span class="close-btn">&times;</span></div>
+            <!-- 설정 슬라이더들은 이전과 동일 -->
+            <div class="setting"><label>전체 시간: <span id="totalDurationLabel">30</span>분</label><input type="range" id="totalDuration" min="1" max="60" value="30"></div>
+            <div class="setting"><label>워밍업: <span id="warmupDurationLabel">10</span>분</label><input type="range" id="warmupDuration" min="1" max="20" value="10"></div>
+            <div class="setting"><label>걷기: <span id="walkIntervalLabel">2</span>분</label><input type="range" id="walkInterval" min="1" max="10" value="2"></div>
+            <div class="setting"><label>뛰기: <span id="runIntervalLabel">2</span>분</label><input type="range" id="runInterval" min="1" max="10" value="2"></div>
         </div>
     </div>
 
     <script>
-        // --- DOM 요소 가져오기 ---
+        // --- DOM 요소 및 상태 변수 ---
         const startView = document.getElementById('startView');
         const workoutView = document.getElementById('workoutView');
         const headerTitle = document.getElementById('headerTitle');
@@ -129,45 +110,38 @@
         const settingsModal = document.getElementById('settingsModal');
         const closeModalBtn = document.querySelector('.close-btn');
         const totalTimeEl = document.getElementById('totalTime');
-        const animationImgEl = document.getElementById('animationImg'); 
+        const animationContainer = document.getElementById('animation-container');
         const phaseTitleEl = document.getElementById('phaseTitle');
         const phaseTimeEl = document.getElementById('phaseTime');
         
-        // --- 설정 값 관련 요소 ---
         const settings = {
-            total: document.getElementById('totalDuration'),
-            warmup: document.getElementById('warmupDuration'),
-            walk: document.getElementById('walkInterval'),
-            run: document.getElementById('runInterval')
+            total: document.getElementById('totalDuration'), warmup: document.getElementById('warmupDuration'),
+            walk: document.getElementById('walkInterval'), run: document.getElementById('runInterval')
         };
         const labels = {
-            total: document.getElementById('totalDurationLabel'),
-            warmup: document.getElementById('warmupDurationLabel'),
-            walk: document.getElementById('walkIntervalLabel'),
-            run: document.getElementById('runIntervalLabel')
+            total: document.getElementById('totalDurationLabel'), warmup: document.getElementById('warmupDurationLabel'),
+            walk: document.getElementById('walkIntervalLabel'), run: document.getElementById('runIntervalLabel')
         };
 
-        // --- 앱 상태 변수 ---
         let timerInterval = null;
         let totalTimeRemaining, phaseTimeRemaining, currentPhase;
+        let lottieAnimation = null; // ✨ Lottie 애니메이션 인스턴스를 저장할 변수
 
-        const phases = {
-            WARMING_UP: 'WARMING_UP',
-            RUNNING: 'RUNNING',
-            WALKING: 'WALKING',
-            FINISHED: 'FINISHED'
+        const phases = { WARMING_UP: 'WARMING_UP', RUNNING: 'RUNNING', WALKING: 'WALKING', FINISHED: 'FINISHED' };
+
+        // --- ✨ Lottie JSON 데이터 (졸라맨 걷기) ---
+        const walkAnimationData = {
+            v: "5.5.7", fr: 30, ip: 0, op: 30, w: 200, h: 200, nm: "walk", ddd: 0, assets: [],
+            layers: [{ ddd: 0, ind: 1, ty: 4, nm: "stickman", sr: 1, sc: { a: 0, k: [100, 100, 100], ix: 11 }, ao: 0, ks: { o: { a: 0, k: 100, ix: 11 }, r: { a: 0, k: 0, ix: 10 }, p: { a: 0, k: [100, 100, 0], ix: 2 }, a: { a: 0, k: [0, 0, 0], ix: 1 }, s: { a: 0, k: [100, 100, 100], ix: 6 } }, shapes: [{ ty: "gr", nm: "body", it: [{ ty: "el", p: { a: 0, k: [0, -40] }, s: { a: 0, k: [20, 20] } }, { ty: "rc", p: { a: 0, k: [0, 0] }, s: { a: 0, k: [5, 50] } }, { ty: "st", c: { a: 0, k: [0, 0, 0] }, w: { a: 0, k: 5 } }] }, { ty: "gr", nm: "legs", it: [{ ty: "gr", nm: "left_leg", it: [{ ty: "sh", ks: { a: 1, k: [{ t: 0, s: [[0, 0], [0, 50]] }, { t: 15, s: [[-15, 0], [-15, 50]] }, { t: 30, s: [[0, 0], [0, 50]] }] } }], p: { a: 0, k: [0, 25] } }, { ty: "gr", nm: "right_leg", it: [{ ty: "sh", ks: { a: 1, k: [{ t: 0, s: [[0, 0], [0, 50]] }, { t: 15, s: [[15, 0], [15, 50]] }, { t: 30, s: [[0, 0], [0, 50]] }] } }], p: { a: 0, k: [0, 25] } }, { ty: "st", c: { a: 0, k: [0, 0, 0] }, w: { a: 0, k: 5 } }] }] }]
+        };
+
+        // --- ✨ Lottie JSON 데이터 (졸라맨 뛰기) ---
+        const runAnimationData = {
+            v: "5.5.7", fr: 30, ip: 0, op: 15, w: 200, h: 200, nm: "run", ddd: 0, assets: [],
+            layers: [{ ddd: 0, ind: 1, ty: 4, nm: "stickman", sr: 1, sc: { a: 0, k: [100, 100, 100] }, ao: 0, ks: { o: { a: 0, k: 100 }, r: { a: 0, k: -10 }, p: { a: 0, k: [100, 100, 0] }, a: { a: 0, k: [0, 0, 0] }, s: { a: 0, k: [100, 100, 100] } }, shapes: [{ ty: "gr", nm: "body", it: [{ ty: "el", p: { a: 0, k: [0, -40] }, s: { a: 0, k: [20, 20] } }, { ty: "rc", p: { a: 0, k: [0, 0] }, s: { a: 0, k: [5, 50] } }, { ty: "st", c: { a: 0, k: [0, 0, 0] }, w: { a: 0, k: 5 } }] }, { ty: "gr", nm: "legs", it: [{ ty: "gr", nm: "left_leg", it: [{ ty: "sh", ks: { a: 1, k: [{ t: 0, s: [[0, 0], [0, 50]] }, { t: 7, s: [[-30, 0], [-20, 50]] }, { t: 15, s: [[0, 0], [0, 50]] }] } }], p: { a: 0, k: [0, 25] } }, { ty: "gr", nm: "right_leg", it: [{ ty: "sh", ks: { a: 1, k: [{ t: 0, s: [[0, 0], [0, 50]] }, { t: 7, s: [[30, 0], [20, 50]] }, { t: 15, s: [[0, 0], [0, 50]] }] } }], p: { a: 0, k: [0, 25] } }, { ty: "st", c: { a: 0, k: [0, 0, 0] }, w: { a: 0, k: 5 } }] }] }]
         };
         
-        // --- ✨ 애니메이션 GIF 데이터 (외부 URL로 변경) ---
-        // 인터넷 연결이 필요합니다.
-        const GIF_LINKS = {
-            WARMING_UP: "https://i.gifer.com/origin/b3/b382d56a293365851412a028045a5bbf_w200.gif",
-            WALKING: "https://i.gifer.com/origin/18/1802371a3818e3a297efe34164c489c7_w200.gif",
-            RUNNING: "https://i.gifer.com/origin/d8/d82a1ee7879f829598a964468d0115b8_w200.gif",
-            FINISHED: "https://i.gifer.com/7936.gif"
-        };
-
-        // --- 함수 ---
+        // --- 함수들 ---
 
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
@@ -180,26 +154,46 @@
             viewToShow.classList.add('active');
             headerTitle.textContent = viewToShow === workoutView ? '트레이닝 중' : '준비';
         }
+        
+        // ✨ Lottie 애니메이션을 로드하고 재생하는 함수
+        function playAnimation(animationData) {
+            if (lottieAnimation) {
+                lottieAnimation.destroy(); // 이전 애니메이션 제거
+            }
+            lottieAnimation = lottie.loadAnimation({
+                container: animationContainer,
+                renderer: 'svg',
+                loop: true,
+                autoplay: true,
+                animationData: animationData // 여기에 JSON 데이터를 전달
+            });
+        }
 
-        // 트레이닝 상태에 따라 UI 업데이트
+        // UI 업데이트 로직 수정
         function updateUI() {
             totalTimeEl.textContent = formatTime(totalTimeRemaining);
             phaseTimeEl.textContent = formatTime(phaseTimeRemaining);
 
             const phaseInfo = {
-                [phases.WARMING_UP]: { title: '워밍업', animationUrl: GIF_LINKS.WARMING_UP, color: '#2ecc71' },
-                [phases.RUNNING]: { title: '뛰는 시간', animationUrl: GIF_LINKS.RUNNING, color: '#e67e22' },
-                [phases.WALKING]: { title: '걷는 시간', animationUrl: GIF_LINKS.WALKING, color: '#3498db' },
-                [phases.FINISHED]: { title: '완료!', animationUrl: GIF_LINKS.FINISHED, color: '#95a5a6' }
+                [phases.WARMING_UP]: { title: '워밍업', color: '#2ecc71', animData: walkAnimationData },
+                [phases.RUNNING]:   { title: '뛰는 시간', color: '#e67e22', animData: runAnimationData },
+                [phases.WALKING]:    { title: '걷는 시간', color: '#3498db', animData: walkAnimationData },
+                [phases.FINISHED]:  { title: '완료!',   color: '#95a5a6', animData: null }
             };
             
-            const info = phaseInfo[currentPhase] || phaseInfo[phases.FINISHED];
+            const info = phaseInfo[currentPhase];
             phaseTitleEl.textContent = info.title;
             phaseTitleEl.style.color = info.color;
             
-            // 현재 이미지 소스가 새 소스와 다를 때만 변경하여 불필요한 리로드를 방지합니다.
-            if (animationImgEl.src !== info.animationUrl) {
-                animationImgEl.src = info.animationUrl;
+            // ✨ 단계에 맞는 애니메이션 재생
+            // 현재 애니메이션과 다를 경우에만 새로 로드하여 최적화
+            if (lottieAnimation?.animationData !== info.animData) {
+                if (info.animData) {
+                    playAnimation(info.animData);
+                } else if(lottieAnimation) {
+                    lottieAnimation.destroy();
+                    lottieAnimation = null;
+                }
             }
         }
 
@@ -234,7 +228,7 @@
             phaseTimeRemaining = settings.warmup.value * 60;
             currentPhase = phases.WARMING_UP;
             switchView(workoutView);
-            updateUI();
+            updateUI(); // 시작과 동시에 UI (애니메이션 포함) 업데이트
             timerInterval = setInterval(tick, 1000);
         }
 
@@ -242,16 +236,21 @@
             clearInterval(timerInterval);
             timerInterval = null;
             
+            if (lottieAnimation) {
+                lottieAnimation.destroy();
+                lottieAnimation = null;
+            }
+
             if (endMessage === '완료!') {
                 currentPhase = phases.FINISHED;
-                updateUI();
-                setTimeout(() => {
-                    switchView(startView);
-                    animationImgEl.src = ""; // 이미지 초기화
-                }, 4000); // 완료 GIF를 충분히 보여주기 위해 시간 약간 늘림
+                // '완료!' 텍스트를 잠시 보여주기 위해 UI 업데이트 후 화면 전환
+                totalTimeEl.textContent = formatTime(0);
+                phaseTimeEl.textContent = "00:00";
+                phaseTitleEl.textContent = "수고하셨습니다!";
+                animationContainer.innerHTML = '🎉'; // 완료 이모티콘
+                setTimeout(() => { switchView(startView); animationContainer.innerHTML = ''; }, 3000);
             } else {
                 switchView(startView);
-                animationImgEl.src = ""; // 이미지 초기화
             }
         }
 
@@ -270,7 +269,6 @@
                 labels[key].textContent = e.target.value;
             });
         });
-
     </script>
 </body>
 </html>
