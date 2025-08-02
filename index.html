@@ -1,1 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>인터벌 러너 - Lottie</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      padding: 20px;
+    }
+    .container { max-width: 600px; margin: auto; }
+    h1 { text-align: center; }
+    .animation-container {
+      display: flex;
+      justify-content: center;
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    #lottie-player {
+      width: 280px;
+      height: 280px;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    button {
+      flex: 1;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: bold;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.5;
+    }
+    .progress {
+      margin-top: 20px;
+    }
+    .bar {
+      height: 10px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .fill {
+      height: 10px;
+      background: #4caf50;
+      width: 0%;
+      transition: width 1s linear;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏃‍♂️ 인터벌 러너</h1>
+    <div class="animation-container">
+      <div id="lottie-player"></div>
+    </div>
+    <div id="phaseText" style="text-align:center;font-size:20px;margin-top:10px;">준비 중...</div>
+    
+    <div class="progress">
+      <div class="bar"><div class="fill" id="progressFill"></div></div>
+    </div>
 
+    <div class="controls">
+      <button onclick="startWorkout()" id="startBtn">시작</button>
+      <button onclick="pauseWorkout()" id="pauseBtn" disabled>일시정지</button>
+      <button onclick="stopWorkout()" id="stopBtn" disabled>정지</button>
+    </div>
+  </div>
+
+<script>
+let totalTime = 30 * 60;  // 30분
+let warmupTime = 10 * 60; // 10분
+let walkTime = 2 * 60;
+let runTime = 2 * 60;
+let timer = null;
+let currentPhase = 'ready';
+let currentCycle = 1;
+let totalCycles = 5;
+let remainingTime = 0;
+let isPaused = false;
+let animation;
+
+function loadAnimation(type) {
+  if (animation) animation.destroy();
+  animation = lottie.loadAnimation({
+    container: document.getElementById("lottie-player"),
+    renderer: "svg",
+    loop: true,
+    autoplay: true,
+    path: type === 'walking' ? 'walk.json' : 'run.json'
+  });
+}
+
+function updatePhaseText(text) {
+  document.getElementById("phaseText").textContent = text;
+  if ('speechSynthesis' in window) {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ko-KR';
+    speechSynthesis.speak(u);
+  }
+}
+
+function updateProgress(percent) {
+  document.getElementById("progressFill").style.width = `${percent}%`;
+}
+
+function startWorkout() {
+  currentPhase = 'warmup';
+  remainingTime = warmupTime;
+  updatePhaseText("워밍업 시작");
+  loadAnimation('walking');
+  document.getElementById("startBtn").disabled = true;
+  document.getElementById("pauseBtn").disabled = false;
+  document.getElementById("stopBtn").disabled = false;
+  startTimer();
+}
+
+function startTimer() {
+  if (timer) clearInterval(timer);
+  timer = setInterval(() => {
+    if (!isPaused) {
+      remainingTime--;
+      const percent = 100 * (1 - remainingTime / getCurrentPhaseDuration());
+      updateProgress(percent);
+
+      if (remainingTime <= 0) {
+        nextPhase();
+      }
+    }
+  }, 1000);
+}
+
+function getCurrentPhaseDuration() {
+  switch (currentPhase) {
+    case 'warmup': return warmupTime;
+    case 'walking': return walkTime;
+    case 'running': return runTime;
+    default: return 1;
+  }
+}
+
+function nextPhase() {
+  if (currentPhase === 'warmup') {
+    currentPhase = 'walking';
+    loadAnimation('walking');
+    updatePhaseText(`걷기 ${currentCycle}회차`);
+    remainingTime = walkTime;
+  } else if (currentPhase === 'walking') {
+    currentPhase = 'running';
+    loadAnimation('running');
+    updatePhaseText(`뛰기 ${currentCycle}회차`);
+    remainingTime = runTime;
+  } else if (currentPhase === 'running') {
+    currentCycle++;
+    if (currentCycle > totalCycles) {
+      updatePhaseText("인터벌 완료 🎉");
+      loadAnimation('walking');
+      stopWorkout();
+      return;
+    }
+    currentPhase = 'walking';
+    loadAnimation('walking');
+    updatePhaseText(`걷기 ${currentCycle}회차`);
+    remainingTime = walkTime;
+  }
+}
+
+function pauseWorkout() {
+  isPaused = !isPaused;
+  document.getElementById("pauseBtn").textContent = isPaused ? "재개" : "일시정지";
+}
+
+function stopWorkout() {
+  clearInterval(timer);
+  timer = null;
+  currentPhase = 'ready';
+  remainingTime = 0;
+  currentCycle = 1;
+  updatePhaseText("중지됨");
+  updateProgress(0);
+  document.getElementById("startBtn").disabled = false;
+  document.getElementById("pauseBtn").disabled = true;
+  document.getElementById("stopBtn").disabled = true;
+  loadAnimation('walking');
+}
+</script>
+</body>
+</html>
