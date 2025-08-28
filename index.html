@@ -166,11 +166,10 @@
         };
 
         let timerInterval = null;
-        let totalTimeRemaining, phaseTimeRemaining, currentPhase;
+        let totalTimeRemaining, totalDuration;
         
         // ✨ 운동 계획 관련 변수 추가
         let workoutPlan = [];
-        let currentPhaseIndex = 0;
 
         // ✨ 화면 잠금 방지 관련 변수
         let wakeLock = null;
@@ -186,26 +185,30 @@
         const WALK_GIF = 'walkman.GIF';
         const RUN_GIF = 'runman.GIF';
 
-        // ✨ 운동 계획 생성 함수
+        // ✨ 운동 계획 생성 함수 (시작 시간 포함)
         function createWorkoutPlan() {
-            const totalDuration = parseInt(settings.total.value) * 60; // 전체 시간(초)
-            const warmupDuration = parseInt(settings.warmup.value) * 60; // 워밍업 시간(초)
-            const runDuration = parseInt(settings.run.value) * 60; // 뛰기 시간(초)
-            const walkDuration = parseInt(settings.walk.value) * 60; // 걷기 시간(초)
+            const totalDur = parseInt(settings.total.value) * 60; // 전체 시간(초)
+            const warmupDur = parseInt(settings.warmup.value) * 60; // 워밍업 시간(초)
+            const runDur = parseInt(settings.run.value) * 60; // 뛰기 시간(초)
+            const walkDur = parseInt(settings.walk.value) * 60; // 걷기 시간(초)
 
             const plan = [];
+            let currentTime = 0; // 경과 시간
             
             // 1. 워밍업 추가
             plan.push({
                 phase: phases.WARMING_UP,
-                duration: warmupDuration,
+                startTime: currentTime,
+                endTime: currentTime + warmupDur,
+                duration: warmupDur,
                 title: '워밍업',
                 color: '#2ecc71',
                 gifFile: WALK_GIF
             });
+            currentTime += warmupDur;
 
             // 2. 남은 시간 계산
-            let remainingTime = totalDuration - warmupDuration;
+            let remainingTime = totalDur - warmupDur;
             
             // 3. 뛰기/걷기 반복 추가
             let isRunning = true; // 워밍업 후 뛰기부터 시작
@@ -213,31 +216,52 @@
             while (remainingTime > 0) {
                 if (isRunning) {
                     // 뛰기 페이즈
-                    const duration = Math.min(runDuration, remainingTime);
+                    const duration = Math.min(runDur, remainingTime);
                     plan.push({
                         phase: phases.RUNNING,
+                        startTime: currentTime,
+                        endTime: currentTime + duration,
                         duration: duration,
                         title: '뛰는 시간',
                         color: '#e67e22',
                         gifFile: RUN_GIF
                     });
+                    currentTime += duration;
                     remainingTime -= duration;
                 } else {
                     // 걷기 페이즈
-                    const duration = Math.min(walkDuration, remainingTime);
+                    const duration = Math.min(walkDur, remainingTime);
                     plan.push({
                         phase: phases.WALKING,
+                        startTime: currentTime,
+                        endTime: currentTime + duration,
                         duration: duration,
                         title: '걷는 시간',
                         color: '#3498db',
                         gifFile: WALK_GIF
                     });
+                    currentTime += duration;
                     remainingTime -= duration;
                 }
                 isRunning = !isRunning; // 뛰기/걷기 토글
             }
 
             return plan;
+        }
+
+        // ✨ 현재 경과 시간을 기준으로 페이즈 정보 찾기
+        function getCurrentPhaseInfo(elapsedTime) {
+            for (let i = 0; i < workoutPlan.length; i++) {
+                const phase = workoutPlan[i];
+                if (elapsedTime >= phase.startTime && elapsedTime < phase.endTime) {
+                    return {
+                        ...phase,
+                        phaseTimeRemaining: phase.endTime - elapsedTime
+                    };
+                }
+            }
+            // 모든 페이즈가 끝났으면 완료
+            return null;
         }
 
         // ✨ 화면 잠금 방지 함수들
@@ -334,14 +358,19 @@
         }
 
         function updateUI() {
+            // 전체 남은 시간 표시
             totalTimeEl.textContent = formatTime(totalTimeRemaining);
-            phaseTimeEl.textContent = formatTime(phaseTimeRemaining);
 
+            // 현재 경과 시간 계산 (전체 시간 - 남은 시간)
+            const elapsedTime = totalDuration - totalTimeRemaining;
+            
             // 현재 페이즈 정보 가져오기
-            const currentPhaseInfo = workoutPlan[currentPhaseIndex];
+            const currentPhaseInfo = getCurrentPhaseInfo(elapsedTime);
+            
             if (currentPhaseInfo) {
                 phaseTitleEl.textContent = currentPhaseInfo.title;
                 phaseTitleEl.style.color = currentPhaseInfo.color;
+                phaseTimeEl.textContent = formatTime(currentPhaseInfo.phaseTimeRemaining);
                 
                 // GIF 파일 변경
                 if (currentPhaseInfo.gifFile && animationImg.src !== currentPhaseInfo.gifFile) {
@@ -349,20 +378,9 @@
                 } else if (!currentPhaseInfo.gifFile) {
                     animationImg.src = '';
                 }
-            }
-        }
-
-        // ✨ 다음 페이즈로 이동하는 함수 수정
-        function nextPhase() {
-            currentPhaseIndex++;
-            if (currentPhaseIndex < workoutPlan.length) {
-                // 다음 페이즈가 있으면 해당 페이즈 시작
-                phaseTimeRemaining = workoutPlan[currentPhaseIndex].duration;
-                currentPhase = workoutPlan[currentPhaseIndex].phase;
             } else {
-                // 모든 페이즈 완료
+                // 완료 상태
                 stopWorkout('완료!');
-                return;
             }
         }
         
@@ -373,24 +391,16 @@
             }
             
             totalTimeRemaining--;
-            phaseTimeRemaining--;
-            
-            if (phaseTimeRemaining < 0) {
-                nextPhase();
-            }
-            
             updateUI();
         }
 
         async function startWorkout() {
             // ✨ 운동 계획 생성
             workoutPlan = createWorkoutPlan();
-            currentPhaseIndex = 0;
             
-            // 전체 시간과 첫 번째 페이즈 설정
-            totalTimeRemaining = parseInt(settings.total.value) * 60;
-            phaseTimeRemaining = workoutPlan[0].duration;
-            currentPhase = workoutPlan[0].phase;
+            // 전체 시간 설정
+            totalDuration = parseInt(settings.total.value) * 60;
+            totalTimeRemaining = totalDuration;
             
             console.log('운동 계획:', workoutPlan); // 디버깅용
             
@@ -415,19 +425,18 @@
                 phaseTitleEl.textContent = '완료!';
                 phaseTitleEl.style.color = '#95a5a6';
                 phaseTimeEl.textContent = '00:00';
+                totalTimeEl.textContent = '00:00';
                 animationImg.src = '';
                 
                 setTimeout(() => {
                     switchView(startView);
                     // 초기화
                     workoutPlan = [];
-                    currentPhaseIndex = 0;
                 }, 3000);
             } else {
                 switchView(startView);
                 // 초기화
                 workoutPlan = [];
-                currentPhaseIndex = 0;
             }
         }
 
