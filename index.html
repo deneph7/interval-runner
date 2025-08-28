@@ -167,6 +167,41 @@
         const WALK_GIF = 'walkman.GIF';
         const RUN_GIF = 'runman.GIF';
 
+        // ✨ 설정값 저장/로드 함수들
+        function saveSettings() {
+            const settingsData = {
+                total: settings.total.value,
+                warmup: settings.warmup.value,
+                walk: settings.walk.value,
+                run: settings.run.value
+            };
+            localStorage.setItem('intervalTrainingSettings', JSON.stringify(settingsData));
+        }
+
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('intervalTrainingSettings');
+            if (savedSettings) {
+                try {
+                    const settingsData = JSON.parse(savedSettings);
+                    
+                    // 슬라이더 값 설정
+                    settings.total.value = settingsData.total || 30;
+                    settings.warmup.value = settingsData.warmup || 10;
+                    settings.walk.value = settingsData.walk || 2;
+                    settings.run.value = settingsData.run || 2;
+                    
+                    // 레이블 업데이트
+                    labels.total.textContent = settings.total.value;
+                    labels.warmup.textContent = settings.warmup.value;
+                    labels.walk.textContent = settings.walk.value;
+                    labels.run.textContent = settings.run.value;
+                } catch (error) {
+                    console.error('설정값 로드 실패:', error);
+                    // 로드 실패 시 기본값 사용
+                }
+            }
+        }
+
         // 함수들
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
@@ -180,7 +215,6 @@
             headerTitle.textContent = viewToShow === workoutView ? '트레이닝 중' : '준비';
         }
 
-        // ✨ 워밍업도 걷기 이미지 사용하도록 설정
         function updateUI() {
             totalTimeEl.textContent = formatTime(totalTimeRemaining);
             phaseTimeEl.textContent = formatTime(phaseTimeRemaining);
@@ -272,6 +306,11 @@
             }
         }
 
+        // ✨ 페이지 로드 시 설정값 복원
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+        });
+
         // 이벤트 리스너
         startBtn.addEventListener('click', startWorkout);
         stopBtn.addEventListener('click', () => stopWorkout('정지'));
@@ -283,10 +322,11 @@
             }
         });
         
-        // 설정 슬라이더 값 변경 시 레이블 업데이트
+        // ✨ 설정 슬라이더 값 변경 시 레이블 업데이트 및 저장
         Object.keys(settings).forEach(key => {
             settings[key].addEventListener('input', (e) => {
                 labels[key].textContent = e.target.value;
+                saveSettings(); // 설정값이 변경될 때마다 저장
             });
         });
     </script>
