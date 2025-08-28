@@ -72,6 +72,16 @@
         .setting { margin: 20px 0; }
         .setting label { display: block; margin-bottom: 10px; font-weight: 500; }
         .setting input[type="range"] { width: 100%; }
+
+        /* 화면 잠금 방지 상태 표시 */
+        .wake-lock-status {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 5px;
+        }
+        .wake-lock-active {
+            color: #2ecc71;
+        }
     </style>
 </head>
 <body>
@@ -89,6 +99,7 @@
             <div class="timer-display">
                 <div class="label">전체 남은 시간</div>
                 <div id="totalTime" class="time">30:00</div>
+                <div id="wakeLockStatus" class="wake-lock-status"></div>
             </div>
             <div class="animation-container">
                 <img id="animationImg" alt="운동 애니메이션" src="">
@@ -139,6 +150,7 @@
         const animationImg = document.getElementById('animationImg');
         const phaseTitleEl = document.getElementById('phaseTitle');
         const phaseTimeEl = document.getElementById('phaseTime');
+        const wakeLockStatusEl = document.getElementById('wakeLockStatus');
         
         const settings = {
             total: document.getElementById('totalDuration'),
@@ -156,6 +168,9 @@
         let timerInterval = null;
         let totalTimeRemaining, phaseTimeRemaining, currentPhase;
 
+        // ✨ 화면 잠금 방지 관련 변수
+        let wakeLock = null;
+
         const phases = {
             WARMING_UP: 'WARMING_UP',
             RUNNING: 'RUNNING',
@@ -166,6 +181,51 @@
         // GIF 파일 경로
         const WALK_GIF = 'walkman.GIF';
         const RUN_GIF = 'runman.GIF';
+
+        // ✨ 화면 잠금 방지 함수들
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('화면 잠금 방지 활성화');
+                    updateWakeLockStatus('🔓 화면 잠금 방지 중', true);
+                    
+                    // Wake lock이 해제되었을 때 이벤트 리스너
+                    wakeLock.addEventListener('release', () => {
+                        console.log('화면 잠금 방지 해제됨');
+                        updateWakeLockStatus('', false);
+                    });
+                } else {
+                    console.log('이 브라우저는 Wake Lock API를 지원하지 않습니다');
+                    updateWakeLockStatus('⚠️ 화면 잠금 방지 미지원', false);
+                }
+            } catch (err) {
+                console.error('Wake Lock 요청 실패:', err);
+                updateWakeLockStatus('⚠️ 화면 잠금 방지 실패', false);
+            }
+        }
+
+        async function releaseWakeLock() {
+            if (wakeLock !== null) {
+                try {
+                    await wakeLock.release();
+                    wakeLock = null;
+                    console.log('화면 잠금 방지 해제');
+                    updateWakeLockStatus('', false);
+                } catch (err) {
+                    console.error('Wake Lock 해제 실패:', err);
+                }
+            }
+        }
+
+        function updateWakeLockStatus(message, isActive) {
+            wakeLockStatusEl.textContent = message;
+            if (isActive) {
+                wakeLockStatusEl.classList.add('wake-lock-active');
+            } else {
+                wakeLockStatusEl.classList.remove('wake-lock-active');
+            }
+        }
 
         // ✨ 설정값 저장/로드 함수들
         function saveSettings() {
@@ -223,22 +283,22 @@
                 [phases.WARMING_UP]: { 
                     title: '워밍업', 
                     color: '#2ecc71', 
-                    gifFile: WALK_GIF  // ✨ 워밍업 시에도 걷기 GIF 사용
+                    gifFile: WALK_GIF
                 },
                 [phases.RUNNING]: { 
                     title: '뛰는 시간', 
                     color: '#e67e22', 
-                    gifFile: RUN_GIF   // 뛰기 GIF 사용
+                    gifFile: RUN_GIF
                 },
                 [phases.WALKING]: { 
                     title: '걷는 시간', 
                     color: '#3498db', 
-                    gifFile: WALK_GIF  // 걷기 GIF 사용
+                    gifFile: WALK_GIF
                 },
                 [phases.FINISHED]: { 
                     title: '완료!', 
                     color: '#95a5a6', 
-                    gifFile: null      // 완료 시 이미지 없음
+                    gifFile: null
                 }
             };
             
@@ -246,11 +306,10 @@
             phaseTitleEl.textContent = info.title;
             phaseTitleEl.style.color = info.color;
             
-            // GIF 파일 변경 (현재와 다른 경우에만)
             if (info.gifFile && animationImg.src !== info.gifFile) {
                 animationImg.src = info.gifFile;
             } else if (!info.gifFile) {
-                animationImg.src = ''; // 완료 시 이미지 제거
+                animationImg.src = '';
             }
         }
 
@@ -280,31 +339,51 @@
             updateUI();
         }
 
-        function startWorkout() {
+        async function startWorkout() {
             totalTimeRemaining = settings.total.value * 60;
             phaseTimeRemaining = settings.warmup.value * 60;
             currentPhase = phases.WARMING_UP;
             switchView(workoutView);
-            updateUI(); // 워밍업 시작과 동시에 걷기 애니메이션 표시
+            updateUI();
+            
+            // ✨ 화면 잠금 방지 활성화
+            await requestWakeLock();
+            
             timerInterval = setInterval(tick, 1000);
         }
 
-        function stopWorkout(endMessage = '정지') {
+        async function stopWorkout(endMessage = '정지') {
             clearInterval(timerInterval);
             timerInterval = null;
+            
+            // ✨ 화면 잠금 방지 해제
+            await releaseWakeLock();
             
             if (endMessage === '완료!') {
                 currentPhase = phases.FINISHED;
                 updateUI();
                 setTimeout(() => {
                     switchView(startView);
-                    animationImg.src = ''; // 애니메이션 이미지 초기화
+                    animationImg.src = '';
                 }, 3000);
             } else {
                 switchView(startView);
-                animationImg.src = ''; // 애니메이션 이미지 초기화
+                animationImg.src = '';
             }
         }
+
+        // ✨ 페이지가 숨겨지거나 보일 때 Wake Lock 관리
+        document.addEventListener('visibilitychange', async () => {
+            if (timerInterval !== null) { // 트레이닝 중일 때만
+                if (document.visibilityState === 'visible') {
+                    // 페이지가 다시 보이면 Wake Lock 재요청
+                    await requestWakeLock();
+                } else {
+                    // 페이지가 숨겨지면 Wake Lock 해제 (자동으로 해제됨)
+                    wakeLock = null;
+                }
+            }
+        });
 
         // ✨ 페이지 로드 시 설정값 복원
         document.addEventListener('DOMContentLoaded', function() {
@@ -326,7 +405,7 @@
         Object.keys(settings).forEach(key => {
             settings[key].addEventListener('input', (e) => {
                 labels[key].textContent = e.target.value;
-                saveSettings(); // 설정값이 변경될 때마다 저장
+                saveSettings();
             });
         });
     </script>
